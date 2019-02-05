@@ -31,27 +31,29 @@ private foreign handler objC_AVAudioEngineAttachNode(in pAVAudioEngine as ObjcRe
 -- (BOOL)startAndReturnError:(NSError * _Nullable *)outError;
 private foreign handler objC_AVAudioEngineStart(in pAVAudioEngine as ObjcRetainedId) returns CBool binds to "objc:AVAudioEngine.-startAndReturnError:"
 
-private foreign handler objC_AVAudioUnitMIDIInstrumentAlloc() returns ObjcRetainedId binds to "objc:AVAudioUnitMIDIInstrument.+alloc"
+private foreign handler objC_AVAudioUnitMIDIInstrumentAlloc() returns ObjcId binds to "objc:AVAudioUnitMIDIInstrument.+alloc"
 -- private foreign handler objC_AVAudioUnitMIDIInstrumentInitWithDescr(in pAVAUMIDIInstrInstnc as ObjcRetainedId, in pACDescrpt as AudioComponentDescription) returns ObjcRetainedId binds to "objc:AVAudioUnitMIDIInstrument.-initWithAudioComponentDescription:"
-private foreign handler objC_AVAudioUnitMIDIInstrumentInitWithDescr(in pAVAUMIDIInstrInstnc as ObjcRetainedId, in pACDescrpt as optional any) returns ObjcId binds to "objc:AVAudioUnitMIDIInstrument.-initWithAudioComponentDescription:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentInitWithDescr(in pAVAUMIDIInstrInstnc as ObjcId, in pACDescrpt as optional any) returns ObjcId binds to "objc:AVAudioUnitMIDIInstrument.-initWithAudioComponentDescription:"
 
 -- private foreign handler objC_AVAVAudioNodeAlloc() returns ObjcId binds to "objc:AVAudioNode.+alloc" -- AVAudioNode
-private foreign handler objC_AVAudioUnitSamplerAlloc() returns ObjcRetainedId binds to "objc:AVAudioUnitSampler.+alloc" -- ObjcRetainedId
-private foreign handler objC_AVAudioUnitSamplerInit(in pAVAUSampler as ObjcRetainedId) returns ObjcId binds to "objc:AVAudioUnitSampler.-init"
+private foreign handler objC_AVAudioUnitSamplerAlloc() returns ObjcId binds to "objc:AVAudioUnitSampler.+alloc" -- ObjcRetainedId
+private foreign handler objC_AVAudioUnitSamplerGetACDescription(in pAVAUSampler as ObjcId) returns AudioComponentDescription binds to "objc:AVAudioUnitSampler.audioComponentDescription"
+private foreign handler objC_AVAudioUnitSamplerInit(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnitSampler.-init"
+
 private foreign handler objC_AVAudioUnitSamplerLoadSoundBankInstrURL(in pAVAUSampler as ObjcId, in pSoundFontNSURL as ObjcId, \
       in pPrgChng as UInt8, in pBankChngMSB as UInt8, in pBankChngLSB as UInt8, out pNSError as optional ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-loadSoundBankInstrumentAtURL:program:bankMSB:bankLSB:error:"
 
 
-constant kAudioUnitType_MusicDevice is 1970107745 -- "aumu"
-constant kAudioUnitSubType_Sampler is 1886216563 -- "samp"
-constant kAudioUnitSubType_DLSSynth is 544435300 -- "dls "
-constant kAudioUnitSubType_MIDISynth is 1853453165
-constant kAudioUnitManufacturer_Apple is 1819308129 -- "appl"
-constant kAudioUnitType_Output is 1970238817
-constant kAudioUnitSubType_RemoteIO is 1668245874
+constant kAudioUnitType_MusicDevice is 1635085685 -- 'umua' reversed for Intel, PowerPC would be 1970107745 -- "aumu"
+constant kAudioUnitSubType_Sampler is 1935764848 -- 'pmas' reversed for Intel, PowerPC would be 1886216563 -- "samp"
+constant kAudioUnitSubType_DLSSynth is  1684828960 -- ' sld' reversed for Intel, PowerPC would be 544435300 --"dls "
+constant kAudioUnitSubType_MIDISynth is 1836284270 -- 'nysm' reversed for Intel, PowerPC would be 1853453165 --"msyn"
+constant kAudioUnitManufacturer_Apple is 1634758764 -- 'lppa' reversed for Intel, PowerPC would be 1819308129 -- "appl"
+constant kAudioUnitType_Output is 1635086197 -- "uoua" reversed for Intel, PowerPC would be 1970238817 -- "auou"
+constant kAudioUnitSubType_RemoteIO is 1919512419 -- "coir" reversed for Intel, PowerPC would be 1668245874 -- "rioc"
 
 private variable sAVAudioEngine as optional ObjcRetainedId
-private variable sAVAudioUnitMIDIInstrument as optional ObjcRetainedId
+private variable sAVAudioUnitMIDIInstrument as optional ObjcId
 
 public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
    variable tSoundFontNSURL as ObjcObject
@@ -59,13 +61,13 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
    variable tNSError as optional ObjcObject
    variable tNSErrorDesriptionRef as ObjcObject
    variable tErrorDesription as optional String
-
+   variable tAudioComponentDescription as AudioComponentDescription
    --    variable tAudioComponentDescr as AudioComponentDescription
    if sAVAudioEngine is nothing then
       unsafe
-         put objC_AVAudioEngineAlloc() into sAVAudioEngine
-         put objC_AVAudioEngineInit(sAVAudioEngine) into sAVAudioEngine
-         log sAVAudioEngine
+         -- put objC_AVAudioEngineAlloc() into sAVAudioEngine
+         -- put objC_AVAudioEngineInit(sAVAudioEngine) into sAVAudioEngine
+         -- log sAVAudioEngine
          put objC_AVAudioUnitSamplerAlloc() into sAVAudioUnitMIDIInstrument
          put objC_AVAudioUnitSamplerInit(sAVAudioUnitMIDIInstrument) into sAVAudioUnitMIDIInstrument
          log sAVAudioUnitMIDIInstrument
@@ -78,6 +80,11 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
             put StringFromNSString(tNSErrorDesriptionRef) into tErrorDesription
             log tErrorDesription
          end if
+         put objC_AVAudioUnitSamplerGetACDescription(sAVAudioUnitMIDIInstrument) into tAudioComponentDescription
+         log element 1 of tAudioComponentDescription
+         log element 2 of tAudioComponentDescription
+         log element 3 of tAudioComponentDescription
+
          -- objC_AVAudioEngineAttachNode(sAVAudioEngine,sAVAudioUnitMIDIInstrument)
          -- put objC_AVAudioEngineStart(sAVAudioEngine) into tAVAudioEngineDidStart
          -- log tAVAudioEngineDidStart
@@ -86,18 +93,15 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
 end handler
 
 public handler AVAudioEngineSamplerAlt() returns nothing
-   variable tAudioComponentDescr as List
-   --    variable tAudioComponentDescr as AudioComponentDescription
+   variable tAudioComponentDescr as AudioComponentDescription
    if sAVAudioEngine is nothing then
       unsafe
          put objC_AVAudioEngineAlloc() into sAVAudioEngine
          put objC_AVAudioEngineInit(sAVAudioEngine) into sAVAudioEngine
          log sAVAudioEngine
-         -- put [0,0,kAudioUnitManufacturer_Apple,kAudioUnitSubType_DLSSynth,kAudioUnitType_MusicDevice] into tAudioComponentDescr
-         -- put [kAudioUnitType_MusicDevice,kAudioUnitSubType_DLSSynth,kAudioUnitManufacturer_Apple,0,0] into tAudioComponentDescr
-         put [1970107745,1886216563,1819308129,0,0] into tAudioComponentDescr
+         put [kAudioUnitType_MusicDevice,kAudioUnitSubType_DLSSynth,kAudioUnitManufacturer_Apple,0,0] into tAudioComponentDescr
          put objC_AVAudioUnitMIDIInstrumentAlloc() into sAVAudioUnitMIDIInstrument
-         put objC_AVAudioUnitMIDIInstrumentInitWithDescr(sAVAudioUnitMIDIInstrument,kAudioUnitType_MusicDevice) into sAVAudioUnitMIDIInstrument
+         put objC_AVAudioUnitMIDIInstrumentInitWithDescr(sAVAudioUnitMIDIInstrument,tAudioComponentDescr) into sAVAudioUnitMIDIInstrument
          log sAVAudioUnitMIDIInstrument
       end unsafe
    end if
