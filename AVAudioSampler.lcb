@@ -25,9 +25,14 @@ private foreign handler objC_NSErrorAlloc() returns ObjcRetainedId binds to "obj
 -- CFStringRef CFErrorCopyDescription(CFErrorRef err);
 private foreign handler c_CFErrorCopyDescription(in pCFErrorRef as ObjcId) returns ObjcId binds to "c:CFErrorCopyDescription"
 
-private foreign handler objC_AVAudioEngineAlloc() returns ObjcRetainedId binds to "objc:AVAudioEngine.+alloc"
+private foreign handler objC_AVAudioEngine() returns ObjcId binds to "objc:AVAudioEngine"
+private foreign handler objC_AVAudioEngineAlloc() returns ObjcId binds to "objc:AVAudioEngine.+alloc"
 private foreign handler objC_AVAudioEngineInit(in pAVAudioEngine as ObjcRetainedId) returns ObjcRetainedId binds to "objc:AVAudioEngine.-init"
+private foreign handler objC_AVAudioEngineGetMainMixerNode(in pAVAudioEngine as ObjcRetainedId) returns ObjcRetainedId binds to "objc:AVAudioEngine.mainMixerNode"
+private foreign handler objC_AVAudioEngineGetInputNode(in pAVAudioEngine as ObjcRetainedId) returns ObjcId binds to "objc:AVAudioEngine.inputNode"
+private foreign handler objC_AVAudioEngineGetOutputNode(in pAVAudioEngine as ObjcRetainedId) returns ObjcId binds to "objc:AVAudioEngine.outputNode"
 private foreign handler objC_AVAudioEngineAttachNode(in pAVAudioEngine as ObjcRetainedId, in pAVAudioNode as ObjcRetainedId) returns nothing binds to "objc:AVAudioEngine.-attachNode:"
+private foreign handler objC_AVAudioEnginePrepareToStart(in pAVAudioEngine as ObjcRetainedId) returns nothing binds to "objc:AVAudioEngine.-prepare"
 -- (BOOL)startAndReturnError:(NSError * _Nullable *)outError;
 private foreign handler objC_AVAudioEngineStart(in pAVAudioEngine as ObjcRetainedId) returns CBool binds to "objc:AVAudioEngine.-startAndReturnError:"
 
@@ -36,9 +41,17 @@ private foreign handler objC_AVAudioUnitMIDIInstrumentAlloc() returns ObjcId bin
 private foreign handler objC_AVAudioUnitMIDIInstrumentInitWithDescr(in pAVAUMIDIInstrInstnc as ObjcId, in pACDescrpt as optional any) returns ObjcId binds to "objc:AVAudioUnitMIDIInstrument.-initWithAudioComponentDescription:"
 
 -- private foreign handler objC_AVAVAudioNodeAlloc() returns ObjcId binds to "objc:AVAudioNode.+alloc" -- AVAudioNode
+private foreign handler objC_AVAudioUnitSampler() returns ObjcId binds to "objc:AVAudioUnitSampler" -- ObjcRetainedId
+private foreign handler objC_AVAudioUnitSamplerInit(in pAVAUSampler as ObjcId) returns ObjcRetainedId binds to "objc:AVAudioUnitSampler.-init"
 private foreign handler objC_AVAudioUnitSamplerAlloc() returns ObjcId binds to "objc:AVAudioUnitSampler.+alloc" -- ObjcRetainedId
-private foreign handler objC_AVAudioUnitSamplerGetACDescription(in pAVAUSampler as ObjcId) returns AudioComponentDescription binds to "objc:AVAudioUnitSampler.audioComponentDescription"
-private foreign handler objC_AVAudioUnitSamplerInit(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnitSampler.-init"
+private foreign handler objC_AVAudioUnitGetACDescription(in pAVAUSampler as ObjcId) returns AudioComponentDescription binds to "objc:AVAudioUnit.audioComponentDescription"
+private foreign handler objC_AVAudioUnitGetName(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.name"
+private foreign handler objC_AVAudioUnitGetManufacturer(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.manufacturerName"
+private foreign handler objC_AVAudioUnitGetVersion(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioUnit.version"
+
+private foreign handler objC_AVAudioNodeGetNumberOfInputs(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioNode.numberOfInputs"
+private foreign handler objC_AVAudioNodeGetNumberOfOutputs(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioNode.numberOfOutputs"
+private foreign handler objC_AVAudioNodeGetEngine(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioNode.engine"
 
 private foreign handler objC_AVAudioUnitSamplerLoadSoundBankInstrURL(in pAVAUSampler as ObjcId, in pSoundFontNSURL as ObjcId, \
       in pPrgChng as UInt8, in pBankChngMSB as UInt8, in pBankChngLSB as UInt8, out pNSError as optional ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-loadSoundBankInstrumentAtURL:program:bankMSB:bankLSB:error:"
@@ -62,32 +75,59 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
    variable tNSErrorDesriptionRef as ObjcObject
    variable tErrorDesription as optional String
    variable tAudioComponentDescription as AudioComponentDescription
+   variable tNSStrObj as optional ObjcId
+   variable tStr as optional String
+   variable tNSObj as optional ObjcId
+   variable tNumber as optional Number -- Integer
    --    variable tAudioComponentDescr as AudioComponentDescription
    if sAVAudioEngine is nothing then
       unsafe
-         -- put objC_AVAudioEngineAlloc() into sAVAudioEngine
-         -- put objC_AVAudioEngineInit(sAVAudioEngine) into sAVAudioEngine
-         -- log sAVAudioEngine
+         put objC_AVAudioEngineAlloc() into sAVAudioEngine
+         put objC_AVAudioEngineInit(sAVAudioEngine) into sAVAudioEngine
+         log sAVAudioEngine
          put objC_AVAudioUnitSamplerAlloc() into sAVAudioUnitMIDIInstrument
          put objC_AVAudioUnitSamplerInit(sAVAudioUnitMIDIInstrument) into sAVAudioUnitMIDIInstrument
          log sAVAudioUnitMIDIInstrument
 
          put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
-         log tSoundFontNSURL
+         -- log tSoundFontNSURL
          objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError)
          if tNSError is not nothing then
             put c_CFErrorCopyDescription(tNSError) into tNSErrorDesriptionRef
             put StringFromNSString(tNSErrorDesriptionRef) into tErrorDesription
             log tErrorDesription
          end if
-         put objC_AVAudioUnitSamplerGetACDescription(sAVAudioUnitMIDIInstrument) into tAudioComponentDescription
+         put objC_AVAudioUnitGetACDescription(sAVAudioUnitMIDIInstrument) into tAudioComponentDescription
          log element 1 of tAudioComponentDescription
          log element 2 of tAudioComponentDescription
          log element 3 of tAudioComponentDescription
-
-         -- objC_AVAudioEngineAttachNode(sAVAudioEngine,sAVAudioUnitMIDIInstrument)
-         -- put objC_AVAudioEngineStart(sAVAudioEngine) into tAVAudioEngineDidStart
-         -- log tAVAudioEngineDidStart
+         put objC_AVAudioUnitGetName(sAVAudioUnitMIDIInstrument) into tNSStrObj
+         put StringFromNSString(tNSStrObj) into tStr
+         log tStr
+         put objC_AVAudioUnitGetManufacturer(sAVAudioUnitMIDIInstrument)into tNSStrObj
+         put StringFromNSString(tNSStrObj) into tStr
+         log tStr
+         put objC_AVAudioUnitGetVersion(sAVAudioUnitMIDIInstrument) into tNumber -- NaturalUInt
+         log tNumber
+         put objC_AVAudioNodeGetNumberOfInputs(sAVAudioUnitMIDIInstrument) into tNumber
+         log tNumber
+         put objC_AVAudioNodeGetNumberOfOutputs(sAVAudioUnitMIDIInstrument) into tNumber
+         log tNumber
+         put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
+         log tNSObj
+         objC_AVAudioEngineAttachNode(sAVAudioEngine,sAVAudioUnitMIDIInstrument)
+         -- check engine again to see if it attached the instrument node:
+         put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
+         log tNSObj
+         put objC_AVAudioEngineGetMainMixerNode(sAVAudioEngine) into tNSObj
+         log tNSObj
+         -- put objC_AVAudioEngineGetOutputNode(sAVAudioEngine) into tNSObj
+         log tNSObj
+         --put objC_AVAudioEngineGetInputNode(sAVAudioEngine) into tNSObj
+         --log tNSObj
+         objC_AVAudioEnginePrepareToStart(sAVAudioEngine)
+         put objC_AVAudioEngineStart(sAVAudioEngine) into tAVAudioEngineDidStart
+         log tAVAudioEngineDidStart
       end unsafe
    end if
 end handler
