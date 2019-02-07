@@ -53,8 +53,8 @@ private foreign handler objC_AVAudioUnitSamplerAlloc() returns ObjcId binds to "
 
 -- sampler.startNote(60, withVelocity: 64, onChannel: 0)
 ---startNote:withVelocity:onChannel: -- Sends a MIDI Note On event to the instrument.
-private foreign handler objC_AVAudioUnitSamplerNoteOn(in pAVAUSampler as ObjcId,in pNoteNum as Data,in pNoteVelo as Data,in pNoteChan as Data) returns nothing binds to "objc:AVAudioUnitSampler.-startNote:withVelocity:onChannel:"
-private foreign handler objC_AVAudioUnitSamplerNoteOff(in pAVAUSampler as ObjcId,in pNoteNum as Data,in pNoteChan as Data) returns nothing binds to "objc:AVAudioUnitSampler.-stopNote:onChannel:"
+private foreign handler objC_AVAudioUnitSamplerNoteOn(in pAVAUSampler as ObjcId,in pNoteNum as UInt8, in pNoteVelo as UInt8, in pNoteChan as UInt8) returns nothing binds to "objc:AVAudioUnitSampler.-startNote:withVelocity:onChannel:"
+private foreign handler objC_AVAudioUnitSamplerNoteOff(in pAVAUSampler as ObjcId, in pNoteNum as UInt8, in pNoteChan as UInt8) returns nothing binds to "objc:AVAudioUnitSampler.-stopNote:onChannel:"
 
 private foreign handler objC_AVAudioUnitGetACDescription(in pAVAUSampler as ObjcId) returns AudioComponentDescription binds to "objc:AVAudioUnit.audioComponentDescription"
 private foreign handler objC_AVAudioUnitGetName(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.name"
@@ -148,30 +148,15 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
    end if
 end handler
 
-public handler AVAudioUnitSamplerNoteOn(in pNoteNum as Number, in pNoteVelo as Number, in pNoteChan as Number) returns nothing
-   variable tNoteNum as Data
-   variable tNoteVelo as Data
-   variable tNoteChan as Data
-   put the byte with code pNoteNum into tNoteNum
-   put the byte with code pNoteVelo into tNoteVelo
-   put the byte with code pNoteChan into tNoteChan
-   log tNoteNum
-   log tNoteVelo
-   log tNoteChan
+public handler AVAudioUnitSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Integer, in pNoteChan as Integer) returns nothing
    unsafe
-      objC_AVAudioUnitSamplerNoteOn(sAVAudioUnitMIDIInstrument,tNoteNum,tNoteVelo,tNoteChan)
+      objC_AVAudioUnitSamplerNoteOn(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteVelo,pNoteChan)
    end unsafe
 end handler
 
-public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Number, in pNoteChan as Number) returns nothing
-   variable tNoteNum as Data
-   variable tNoteChan as Data
-   put the byte with code pNoteNum into tNoteNum
-   put the byte with code pNoteChan into tNoteChan
-   log tNoteNum
-   log tNoteChan
+public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Integer) returns nothing
    unsafe
-      objC_AVAudioUnitSamplerNoteOff(sAVAudioUnitMIDIInstrument,tNoteNum,tNoteChan)
+      objC_AVAudioUnitSamplerNoteOff(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteChan)
    end unsafe
 end handler
 
