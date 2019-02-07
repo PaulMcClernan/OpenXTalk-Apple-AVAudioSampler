@@ -103,7 +103,7 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
 
          put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
          -- log tSoundFontNSURL
-         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError)
+         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError) -- 0x79 for melodic bank, 0x78 for drum bank
          if tNSError is not nothing then
             put c_CFErrorCopyDescription(tNSError) into tNSErrorDesriptionRef
             put StringFromNSString(tNSErrorDesriptionRef) into tErrorDesription
