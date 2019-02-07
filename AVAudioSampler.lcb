@@ -113,18 +113,20 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
          log element 1 of tAudioComponentDescription
          log element 2 of tAudioComponentDescription
          log element 3 of tAudioComponentDescription
+         log element 4 of tAudioComponentDescription
+         log element 5 of tAudioComponentDescription
          put objC_AVAudioUnitGetName(sAVAudioUnitMIDIInstrument) into tNSStrObj
          put StringFromNSString(tNSStrObj) into tStr
          log tStr
          put objC_AVAudioUnitGetManufacturer(sAVAudioUnitMIDIInstrument)into tNSStrObj
          put StringFromNSString(tNSStrObj) into tStr
          log tStr
-         put objC_AVAudioUnitGetVersion(sAVAudioUnitMIDIInstrument) into tNumber -- NaturalUInt
-         log tNumber
-         put objC_AVAudioNodeGetNumberOfInputs(sAVAudioUnitMIDIInstrument) into tNumber
-         log tNumber
-         put objC_AVAudioNodeGetNumberOfOutputs(sAVAudioUnitMIDIInstrument) into tNumber
-         log tNumber
+         -- put objC_AVAudioUnitGetVersion(sAVAudioUnitMIDIInstrument) into tNumber -- NaturalUInt
+         -- log tNumber
+         -- put objC_AVAudioNodeGetNumberOfInputs(sAVAudioUnitMIDIInstrument) into tNumber
+         -- log tNumber
+         -- put objC_AVAudioNodeGetNumberOfOutputs(sAVAudioUnitMIDIInstrument) into tNumber
+         -- log tNumber
          put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
          log tNSObj
          objC_AVAudioEngineAttachNode(sAVAudioEngine,sAVAudioUnitMIDIInstrument)
@@ -144,6 +146,29 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
          objC_AVAudioEnginePrepareToStart(sAVAudioEngine)
          put objC_AVAudioEngineStart(sAVAudioEngine,tNSError) into tAVAudioEngineDidStart
          log tAVAudioEngineDidStart
+      end unsafe
+   end if
+end handler
+
+public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as String) returns optional any
+   variable tSoundFontNSURL as ObjcObject
+   variable tNSError as optional ObjcObject
+   variable tNSErrorDescriptionRef as ObjcObject
+   variable tErrorDescription as optional String
+   if sAVAudioUnitMIDIInstrument is not nothing then
+      unsafe
+         put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
+         -- log tSoundFontNSURL
+         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError) -- 0x79 for melodic bank, 0x78 for drum bank
+         if tNSError is not nothing then
+            put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
+            put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
+            return tErrorDescription
+         else
+            -- put "true" into tErrorDescription
+            -- return tErrorDescription
+            return true
+         end if
       end unsafe
    end if
 end handler
