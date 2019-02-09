@@ -136,16 +136,28 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
    end if
 end handler
 
-public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as String, in pProgramNum as Integer, in pBankLSB as Integer) returns optional any
+public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as optional String, in pProgramNum as optional Integer, in pBankMSB as optional Integer, in pBankLSB as optional Integer) returns optional any
    variable tSoundFontNSURL as ObjcObject
    variable tNSError as optional ObjcObject
    variable tNSErrorDescriptionRef as ObjcObject
    variable tErrorDescription as optional String
    if sAVAudioUnitMIDIInstrument is not nothing then
+      if pSoundFontPath is nothing then
+         put "/System/Library/Components/CoreAudio.component/Contents/Resources/gs_instruments.dls" into pSoundFontPath
+      end if
+      if pProgramNum is nothing then
+         put 0 into pProgramNum
+      end if
+      if pBankMSB is nothing then
+         put 0x79 into pBankMSB
+      end if
+      if pBankLSB is nothing then
+         put 0 into pBankLSB
+      end if
       unsafe
          put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
          -- log tSoundFontNSURL
-         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,pProgramNum,0x79,pBankLSB,tNSError) -- MSB 0x79 (121) for melodic bank?, 0x78 (122) or 0x7F (127) for drum bank?
+         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,pProgramNum,pBankMSB,pBankLSB,tNSError) -- MSB 0x79 (121) for melodic bank?, 0x78 (120) or 0x7F (127) for drum bank?
          if tNSError is not nothing then
             put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
             put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
