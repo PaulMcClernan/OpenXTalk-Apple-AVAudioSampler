@@ -45,12 +45,33 @@ private foreign handler objC_AVAudioEnginePrepareToStart(in pAVAudioEngine as Ob
 private foreign handler objC_AVAudioEngineStart(in pAVAudioEngine as ObjcRetainedId, out rError as optional ObjcId) returns CBool binds to "objc:AVAudioEngine.-startAndReturnError:"
 
 private foreign handler objC_AVAudioUnitMIDIInstrumentAlloc() returns ObjcId binds to "objc:AVAudioUnitMIDIInstrument.+alloc"
-private foreign handler objC_AVAudioUnitMIDIInstrumentInitWithDescr(in pAVAUMIDIInstrInstnc as ObjcRetainedId, in pACDescrpt as AudioComponentDescription) returns ObjcRetainedId binds to "objc:AVAudioUnitMIDIInstrument.-initWithAudioComponentDescription:"
-
+private foreign handler objC_AVAudioUnitMIDIInstrumentInitWithDescr(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pACDescrpt as AudioComponentDescription) returns ObjcRetainedId binds to "objc:AVAudioUnitMIDIInstrument.-initWithAudioComponentDescription:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentChannelPressure(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pPressure as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendPressure:onChannel:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentEvent(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pStatusByte as UInt8, in pDataOne as UInt8,in pDataTwo as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendMIDIEvent:data1:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentEventTwoBytes(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pStatusByte as UInt8, in pDataOne as UInt8,in pDataTwo as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendMIDIEvent:data1:data2:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentController(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pController as UInt8, in pValue as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendController:withValue:onChannel:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentPitchbend(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pPitchbend as UInt16, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendPitchBend:onChannel:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentProgramChange(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pProgram as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendProgramChange:onChannel:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentBankAndProgramChange(in pAVAUMIDIInstrInstr as ObjcRetainedId, in pProgram as UInt8, in pBankMSB as UInt8, in pBankLSB as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendProgramChange:bankMSB:bankLSB:onChannel:"
+-- - (void)sendMIDISysExEvent:(NSData *)midiData;
 private foreign handler objC_AVAudioUnitSamplerAlloc() returns ObjcId binds to "objc:AVAudioUnitSampler.+alloc"
 private foreign handler objC_AVAudioUnitSamplerInit(in pAVAUSampler as ObjcId) returns ObjcRetainedId binds to "objc:AVAudioUnitSampler.-init"
 private foreign handler objC_AVAudioUnitSamplerLoadSoundBankInstrURL(in pAVAUSampler as ObjcId, in pSoundFontNSURL as ObjcId, \
       in pPrgChng as UInt8, in pBankChngMSB as UInt8, in pBankChngLSB as UInt8, out pNSError as optional ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-loadSoundBankInstrumentAtURL:program:bankMSB:bankLSB:error:"
+private foreign handler objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(in pAVAUSampler as ObjcId, in pFileURL as ObjcId, out pNSError as optional ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-loadInstrumentAtURL:error:"
+-- loadAudioFilesAtURLs:error: rteturns Boolean
+private foreign handler objC_AVAudioUnitSamplerMasterGain(in pAVAUSampler as ObjcId, in pGain as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.masterGain"
+-- masterGain -- float
+-- Adjustment for the gain, in decibels, of all the notes played.
+-- default value is 0.0 dB. The range of valid values is -90.0 dB to 12.0 dB.
+private foreign handler objC_AVAudioUnitSamplerStereoPan(in pAVAUSampler as ObjcId, in pPan as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.stereoPan"
+-- stereoPan -- float
+-- default value is 0.0. The range of valid values is -1.0 to 1.0.
+private foreign handler objC_AVAudioUnitSamplerGlobalTuning(in pAVAUSampler as ObjcId, in pGTuning as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.globalTuning"
+-- globalTuning -- @property(nonatomic) float globalTuning;
+-- The tuning unit is cents. The default value is 0.0.
+-- The range of valid values is -2400 to 2400 cents.
+
 private foreign handler objC_AVAudioUnitSamplerNoteOn(in pAVAUSampler as ObjcId,in pNoteNum as UInt8, in pNoteVelo as UInt8, in pNoteChan as UInt8) returns nothing binds to "objc:AVAudioUnitSampler.-startNote:withVelocity:onChannel:"
 private foreign handler objC_AVAudioUnitSamplerNoteOff(in pAVAUSampler as ObjcId, in pNoteNum as UInt8, in pNoteChan as UInt8) returns nothing binds to "objc:AVAudioUnitSampler.-stopNote:onChannel:"
 
@@ -165,6 +186,26 @@ public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as optional Stri
          else
             -- put "true" into tErrorDescription
             -- return tErrorDescription
+            return true
+         end if
+      end unsafe
+   end if
+end handler
+
+public handler AVAudioUnitSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath as optional String) returns optional any
+   variable tEXSPresetOrSoundURL as ObjcObject
+   variable tNSError as optional ObjcObject
+   variable tNSErrorDescriptionRef as ObjcObject
+   variable tErrorDescription as optional String
+   if sAVAudioUnitMIDIInstrument is not nothing then
+      unsafe
+         put objC_NSURLfileURLWithPath(StringToNSString(pEXSPresetOrSoundPath)) into tEXSPresetOrSoundURL
+         objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(sAVAudioUnitMIDIInstrument,tEXSPresetOrSoundURL,tNSError)
+         if tNSError is not nothing then
+            put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
+            put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
+            return tErrorDescription
+         else
             return true
          end if
       end unsafe
