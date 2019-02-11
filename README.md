@@ -18,5 +18,7 @@ Plays 2 notes
 Version 0.3:
 
 Loads DLS & SF2 from files on the fly with program change and bank selecting
+
 Loads EXS24 (Logic/GarageBand sampler instruments) & Apple Sampler .AUPresets files
+
 Plays some notes
