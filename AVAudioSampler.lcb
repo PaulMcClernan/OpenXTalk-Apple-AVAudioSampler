@@ -57,8 +57,10 @@ private foreign handler objC_AVAudioUnitMIDIInstrumentBankAndProgramChange(in pA
 private foreign handler objC_AVAudioUnitSamplerAlloc() returns ObjcId binds to "objc:AVAudioUnitSampler.+alloc"
 private foreign handler objC_AVAudioUnitSamplerInit(in pAVAUSampler as ObjcId) returns ObjcRetainedId binds to "objc:AVAudioUnitSampler.-init"
 private foreign handler objC_AVAudioUnitSamplerLoadSoundBankInstrURL(in pAVAUSampler as ObjcId, in pSoundFontNSURL as ObjcId, \
-      in pPrgChng as UInt8, in pBankChngMSB as UInt8, in pBankChngLSB as UInt8, out pNSError as optional ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-loadSoundBankInstrumentAtURL:program:bankMSB:bankLSB:error:"
-private foreign handler objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(in pAVAUSampler as ObjcId, in pFileURL as ObjcId, out pNSError as optional ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-loadInstrumentAtURL:error:"
+      in pPrgChng as UInt8, in pBankChngMSB as UInt8, in pBankChngLSB as UInt8, out pNSError as optional ObjcId) returns CBool binds to "objc:AVAudioUnitSampler.-loadSoundBankInstrumentAtURL:program:bankMSB:bankLSB:error:"
+private foreign handler objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(in pAVAUSampler as ObjcId, in pFileURL as ObjcId, out pNSError as optional ObjcId) returns CBool binds to "objc:AVAudioUnitSampler.-loadInstrumentAtURL:error:"
+-- (BOOL)loadAudioFilesAtURLs:(NSArray<NSURL *> *)audioFiles error:(NSError * _Nullable *)outError;
+private foreign handler objC_AVAudioUnitSamplerLoadSoundFilesURLs(in pNSArrayOfNSURLs as ObjcId, out pNSError as optional ObjcId) returns CBool binds to "objc:AVAudioUnitSampler.-loadInstrumentAtURL:error:"
 -- loadAudioFilesAtURLs:error: rteturns Boolean
 private foreign handler objC_AVAudioUnitSamplerMasterGain(in pAVAUSampler as ObjcId, in pGain as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.masterGain"
 -- masterGain -- float
@@ -87,7 +89,9 @@ private foreign handler objC_AVAudioNodeGetEngine(in pAVAUSampler as ObjcId) ret
 private variable sAVAudioEngine as optional ObjcRetainedId
 private variable sAVAudioUnitMIDIInstrument as optional ObjcId
 
-public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
+public handler AVAudioEngineSamplerInit() returns nothing
+-- public handler AVAudioEngineSamplerInit(in pSoundFontPath as String) returns nothing
+
    variable tSoundFontNSURL as ObjcObject
    variable tAVAudioEngineDidStart as Boolean
    variable tNSError as optional ObjcObject
@@ -108,14 +112,14 @@ public handler AVAudioEngineSampler(in pSoundFontPath as String) returns nothing
          put objC_AVAudioUnitSamplerInit(sAVAudioUnitMIDIInstrument) into sAVAudioUnitMIDIInstrument
          log sAVAudioUnitMIDIInstrument
 
-         put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
+         -- put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
          -- log tSoundFontNSURL
-         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError) -- 0x79 for melodic bank, 0x78 for drum bank
-         if tNSError is not nothing then
-            put c_CFErrorCopyDescription(tNSError) into tNSErrorDesriptionRef
-            put StringFromNSString(tNSErrorDesriptionRef) into tErrorDesription
-            log tErrorDesription
-         end if
+         -- objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError) -- 0x79 for melodic bank, 0x78 for drum bank
+         -- if tNSError is not nothing then
+         --   put c_CFErrorCopyDescription(tNSError) into tNSErrorDesriptionRef
+         --   put StringFromNSString(tNSErrorDesriptionRef) into tErrorDesription
+         --   log tErrorDesription
+         -- end if
          -- put objC_AVAudioUnitGetACDescription(sAVAudioUnitMIDIInstrument) into tAudioComponentDescription
          -- log element 1 of tAudioComponentDescription
          -- log element 2 of tAudioComponentDescription
@@ -162,6 +166,7 @@ public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as optional Stri
    variable tNSError as optional ObjcObject
    variable tNSErrorDescriptionRef as ObjcObject
    variable tErrorDescription as optional String
+   variable tDidLoad as Boolean
    if sAVAudioUnitMIDIInstrument is not nothing then
       if pSoundFontPath is nothing then
          put "/System/Library/Components/CoreAudio.component/Contents/Resources/gs_instruments.dls" into pSoundFontPath
@@ -178,7 +183,7 @@ public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as optional Stri
       unsafe
          put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
          -- log tSoundFontNSURL
-         objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,pProgramNum,pBankMSB,pBankLSB,tNSError) -- MSB 0x79 (121) for melodic bank?, 0x78 (120) or 0x7F (127) for drum bank?
+         put objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,pProgramNum,pBankMSB,pBankLSB,tNSError) into tDidLoad-- MSB 0x79 (121) for melodic bank?, 0x78 (120) or 0x7F (127) for drum bank?
          if tNSError is not nothing then
             put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
             put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
@@ -197,10 +202,35 @@ public handler AVAudioUnitSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath a
    variable tNSError as optional ObjcObject
    variable tNSErrorDescriptionRef as ObjcObject
    variable tErrorDescription as optional String
+   variable tDidLoad as Boolean
    if sAVAudioUnitMIDIInstrument is not nothing then
       unsafe
          put objC_NSURLfileURLWithPath(StringToNSString(pEXSPresetOrSoundPath)) into tEXSPresetOrSoundURL
-         objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(sAVAudioUnitMIDIInstrument,tEXSPresetOrSoundURL,tNSError)
+         put objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(sAVAudioUnitMIDIInstrument,tEXSPresetOrSoundURL,tNSError) into tDidLoad
+         if tNSError is not nothing then
+            put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
+            put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
+            return tErrorDescription
+         else
+            return true
+         end if
+      end unsafe
+   end if
+end handler
+
+handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathList as optional String) returns optional any
+   variable pSoundFileURL as ObjcObject
+   variable pSoundFilesURLsArray as Array
+   variable pSoundFilesURLsNSArray as ObjcObject
+   variable tNSError as optional ObjcObject
+   variable tNSErrorDescriptionRef as ObjcObject
+   variable tErrorDescription as optional String
+   variable tDidLoad as Boolean
+   if sAVAudioUnitMIDIInstrument is not nothing then
+      unsafe
+         put objC_NSURLfileURLWithPath(StringToNSString(pSoundFilesPathList)) into pSoundFilesURL
+
+         put objC_AVAudioUnitSamplerLoadSoundFilesURLs(sAVAudioUnitMIDIInstrument,pSoundFilesURLsNSArray,tNSError) into tDidLoad
          if tNSError is not nothing then
             put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
             put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
