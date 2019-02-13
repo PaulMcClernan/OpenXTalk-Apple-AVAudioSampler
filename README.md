@@ -29,8 +29,8 @@ Loads DLS & SF2 from files on the fly with program change and bank selecting
 
 Loads EXS24 (Logic/GarageBand sampler instruments) & Apple Sampler .AUPresets files
 
-Loads loose Sound Files (mp3,aiff,wav,etc.) files.
+Loads loose Sound Files (mp3,aiff,wav,etc.) files *
 
-*this handler seems to crash quite a bit when loading more sounds, memory managemnt issue.
+*this handler seems to crash quite a bit when loading more sounds, memory management issue.
 
 Plays some notes
