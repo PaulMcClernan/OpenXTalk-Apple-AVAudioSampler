@@ -319,7 +319,7 @@
 	<key>file-references</key>
 	<dict>
 		<key>Sample:268435457</key>
-		<string>/Users/paul/Desktop/Ping.mp3</string>
+		<string>/System/Library/Sounds/Basso.aiff</string>
 	</dict>
 	<key>fine tune</key>
 	<real>0.0</real>
