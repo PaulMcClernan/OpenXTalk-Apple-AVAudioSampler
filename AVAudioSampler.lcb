@@ -1,4 +1,4 @@
-library community.appledlssynth.paulmcclernan
+library community.appleavaudiosampler.paulmcclernan
 
 use com.livecode.engine
 use com.livecode.foreign
