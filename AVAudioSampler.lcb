@@ -25,16 +25,16 @@ constant kAudioUnitManufacturer_Apple is 1634758764 -- 'lppa' reversed for Intel
 constant kAudioUnitType_Output is 1635086197 -- "uoua" reversed for Intel, PowerPC would be 1970238817 -- "auou"
 constant kAudioUnitSubType_RemoteIO is 1919512419 -- "coir" reversed for Intel, PowerPC would be 1668245874 -- "rioc"
 
-private foreign handler objC_NSURLURLWithString(in pURLString as ObjcId) returns ObjcRetainedId binds to "objc:NSURL.+URLWithString:"
-private foreign handler objC_NSURLfileOrDirURLWithPath(in pPathString as ObjcId, in pIsDir as CBool) returns ObjcRetainedId binds to "objc:.NSURL.+fileURLWithPath:isDirectory:"
-private foreign handler objC_NSURLfileURLWithPath(in pPathString as ObjcId) returns ObjcRetainedId binds to "objc:NSURL.+fileURLWithPath:"
-private foreign handler objC_NSErrorAlloc() returns ObjcRetainedId binds to "objc:NSError.+alloc"
+private foreign handler objC_NSURLURLWithString(in pURLString as ObjcId) returns ObjcId binds to "objc:NSURL.+URLWithString:"
+private foreign handler objC_NSURLfileOrDirURLWithPath(in pPathString as ObjcId, in pIsDir as CBool) returns ObjcId binds to "objc:.NSURL.+fileURLWithPath:isDirectory:"
+private foreign handler objC_NSURLfileURLWithPath(in pPathString as ObjcId) returns ObjcId binds to "objc:NSURL.+fileURLWithPath:"
+private foreign handler objC_NSErrorAlloc() returns ObjcId binds to "objc:NSError.+alloc"
 private foreign handler objC_NSMutableArrayAlloc() returns ObjcRetainedId binds to "objc:NSMutableArray.+alloc"
 private foreign handler objC_NSMutableArrayInitWithCapacity(in pNSMutableArray as ObjcId, in pCapacity as NaturalFloat) returns ObjcId binds to "objc:NSMutableArray.-initWithCapacity:"
 private foreign handler objC_NSMutableArrayInitWithNSArray(in pNSMutableArray as ObjcId, in pNSArray as ObjcId) returns ObjcId binds to "objc:NSMutableArray.-initWithArray:"
 private foreign handler c_CFErrorCopyDescription(in pCFErrorRef as ObjcId) returns ObjcId binds to "c:CFErrorCopyDescription"
 
-private foreign handler objC_AVAudioEngineAlloc() returns ObjcRetainedId binds to "objc:AVAudioEngine.+alloc"
+private foreign handler objC_AVAudioEngineAlloc() returns ObjcRetainedId binds to "objc:AVAudioEngine.+alloc" -- must be ObjcRetainedId
 private foreign handler objC_AVAudioEngineInit(in pAVAudioEngine as ObjcId) returns ObjcId binds to "objc:AVAudioEngine.-init"
 private foreign handler objC_AVAudioEngineConnectSourceToDest(in pAVAudioEngine as ObjcId, \
                    in pSourceNode as ObjcId, in pDestinationNode as ObjcId, in pFormat as optional any) \
@@ -91,6 +91,10 @@ private foreign handler objC_AVAudioUnitGetVersion(in pAVAUSampler as ObjcId) re
 private foreign handler objC_AVAudioNodeGetNumberOfInputs(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioNode.numberOfInputs"
 private foreign handler objC_AVAudioNodeGetNumberOfOutputs(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioNode.numberOfOutputs"
 private foreign handler objC_AVAudioNodeGetEngine(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioNode.engine"
+
+private foreign handler MCProperListConvertToCFArrayRef(in pList as List, in pUseLists as CBool, out rNSArray as ObjcRetainedId) returns CBool binds to "MCProperListConvertToCFArrayRef"
+
+
 
 private variable sAVAudioEngine as optional ObjcObject
 private variable sAVAudioUnitMIDIInstrument as optional ObjcObject
@@ -247,8 +251,8 @@ end handler
 
 public handler AVAudioUnitSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath as optional String) returns optional any
    variable tEXSPresetOrSoundURL as ObjcObject
-   variable tNSError as optional ObjcObject
-   variable tNSErrorDescriptionRef as ObjcObject
+   variable tNSError as optional ObjcId
+   variable tNSErrorDescriptionRef as ObjcId
    variable tErrorDescription as optional String
    variable tDidLoad as Boolean
    if sAVAudioUnitMIDIInstrument is not nothing then
@@ -268,28 +272,39 @@ end handler
 
 public handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathsListStr as String) returns optional any
    variable tListIterand as any
+   variable tNSURL as ObjcId
    variable tSoundFilesPathsList as List
    variable tSoundFilesNSURLsList as List
    variable tSoundFilesURLsNSArray as ObjcId
    variable tNSMutableArray as ObjcId
-   variable tNSError as optional ObjcObject
-   variable tNSErrorDescriptionRef as ObjcObject
+   variable tNSError as optional ObjcId
+   variable tNSErrorDescriptionRef as ObjcId
    variable tErrorDescription as optional String
    variable tDidLoad as Boolean
+   variable tNumber as Number -- Integer
    split pSoundFilesPathsListStr by newline into tSoundFilesPathsList
    -- log tSoundFilesPathsList
-   if sAVAudioUnitMIDIInstrument is not nothing then
+    put the number of elements in tSoundFilesPathsList into tNumber
+    -- log tNumber
+      if sAVAudioUnitMIDIInstrument is not nothing then
       unsafe
+      -- if tNumber > 1 then
          repeat for each element tListIterand in tSoundFilesPathsList
             push objC_NSURLfileURLWithPath(StringToNSString(tListIterand)) onto tSoundFilesNSURLsList
          end repeat
-         log tSoundFilesNSURLsList
-         put ListToNSArray(tSoundFilesNSURLsList) into tSoundFilesURLsNSArray
+         -- log tSoundFilesNSURLsList
+         MCProperListConvertToCFArrayRef(tSoundFilesNSURLsList, true, tSoundFilesURLsNSArray) -- builtin function that ListToNSArray uses, ListToNSArray returns Retained
+         -- put ListToNSArray(tSoundFilesNSURLsList) into tSoundFilesURLsNSArray
          -- put objC_NSMutableArray(127) into tSoundFilesURLsNSArrayMutable
-         put objC_NSMutableArrayAlloc() into tNSMutableArray
+         -- put objC_NSMutableArrayAlloc() into tNSMutableArray
          -- put objC_NSMutableArrayInitWithNSArray(tNSMutableArray,tSoundFilesURLsNSArray) into tNSMutableArray
-         put objC_AVAudioUnitSamplerLoadSoundFilesURLs(sAVAudioUnitMIDIInstrument,tNSMutableArray,tNSError) into tDidLoad\
-         -- put objC_AVAudioUnitSamplerLoadSoundFilesURLs(sAVAudioUnitMIDIInstrument,tSoundFilesURLsNSArray,tNSError) into tDidLoad
+         -- put objC_AVAudioUnitSamplerLoadSoundFilesURLs(sAVAudioUnitMIDIInstrument,tNSMutableArray,tNSError) into tDidLoad
+         put objC_AVAudioUnitSamplerLoadSoundFilesURLs(sAVAudioUnitMIDIInstrument,tSoundFilesURLsNSArray,tNSError) into tDidLoad
+      -- end if
+      -- if tNumber = 1 then
+      --   put objC_NSURLfileURLWithPath(StringToNSString(pSoundFilesPathsListStr)) into tNSURL
+      --   put objC_AVAudioUnitSamplerLoadSoundFilesURLs(sAVAudioUnitMIDIInstrument,tNSURL,tNSError) into tDidLoad
+      -- end if
          if tNSError is not nothing then
             put c_CFErrorCopyDescription(tNSError) into tNSErrorDescriptionRef
             put StringFromNSString(tNSErrorDescriptionRef) into tErrorDescription
