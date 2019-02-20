@@ -87,6 +87,16 @@ private foreign handler objC_AVAudioUnitGetACDescription(in pAVAUSampler as Objc
 private foreign handler objC_AVAudioUnitGetName(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.name"
 private foreign handler objC_AVAudioUnitGetManufacturer(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.manufacturerName"
 private foreign handler objC_AVAudioUnitGetVersion(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioUnit.version"
+private foreign handler objC_AVAudioUnitGetAudioUnit(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.audioUnit"
+-- private foreign handler objC_AVAudioUnitGetAUAudioUnit(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnit.AUAudioUnit" -- macOS 10.11+ only
+
+private foreign handler c_AudioUnitUninitialize(in pAVAUSampler as ObjcId) returns CSInt binds to "c:AudioUnit.framework>AudioUnitUninitialize"
+private foreign handler c_AudioUnitInitialize(in pAVAUSampler as ObjcId) returns CSInt binds to "c:AudioUnit.framework>AudioUnitInitialize"
+private foreign handler c_AudioUnitGetProperty(in pAudioUnit as ObjcId,in pPropertyID as UInt32,in pScope as UInt32, in pElement as UInt32, \
+                                       out rData as Data, out rDataSize as UInt32) returns CSInt binds to "c:AudioUnit.framework>AudioUnitGetProperty"
+
+private foreign handler objC_AVAudioUnitComponentGetComponent(in pAVAUSampler as ObjcId) returns any binds to "objc:AVAudioUnitComponent.audioComponent"
+private foreign handler objC_AVAudioUnitComponentHasCustomView(in pAVAUSampler as ObjcId) returns CBool binds to "objc:AVAudioUnitComponent.hasCustomView"
 
 private foreign handler objC_AVAudioNodeGetNumberOfInputs(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioNode.numberOfInputs"
 private foreign handler objC_AVAudioNodeGetNumberOfOutputs(in pAVAUSampler as ObjcId) returns NaturalUInt binds to "objc:AVAudioNode.numberOfOutputs"
@@ -120,37 +130,8 @@ public handler AVAudioEngineSamplerInit() returns optional any
          put objC_AVAudioUnitSamplerAlloc() into sAVAudioUnitMIDIInstrument
          put objC_AVAudioUnitSamplerInit(sAVAudioUnitMIDIInstrument) into sAVAudioUnitMIDIInstrument
          log sAVAudioUnitMIDIInstrument
-         -- put objC_NSURLfileURLWithPath(StringToNSString(pSoundFontPath)) into tSoundFontNSURL
-         -- log tSoundFontNSURL
-         -- objC_AVAudioUnitSamplerLoadSoundBankInstrURL(sAVAudioUnitMIDIInstrument,tSoundFontNSURL,0,0x79,0,tNSError) -- 0x79 for melodic bank, 0x78 for drum bank
-         -- if tNSError is not nothing then
-         --   put c_CFErrorCopyDescription(tNSError) into tNSErrorDesriptionRef
-         --   put StringFromNSString(tNSErrorDesriptionRef) into tErrorDesription
-         --   log tErrorDesription
-         -- end if
-         -- put objC_AVAudioUnitGetACDescription(sAVAudioUnitMIDIInstrument) into tAudioComponentDescription
-         -- log element 1 of tAudioComponentDescription
-         -- log element 2 of tAudioComponentDescription
-         -- log element 3 of tAudioComponentDescription
-         -- log element 4 of tAudioComponentDescription
-         -- log element 5 of tAudioComponentDescription
-         put objC_AVAudioUnitGetName(sAVAudioUnitMIDIInstrument) into tNSStrObj
-         put StringFromNSString(tNSStrObj) into tStr
-         log tStr
-         put objC_AVAudioUnitGetManufacturer(sAVAudioUnitMIDIInstrument)into tNSStrObj
-         put StringFromNSString(tNSStrObj) into tStr
-         log tStr
-         -- put objC_AVAudioUnitGetVersion(sAVAudioUnitMIDIInstrument) into tNumber -- NaturalUInt
-         -- log tNumber
-         -- put objC_AVAudioNodeGetNumberOfInputs(sAVAudioUnitMIDIInstrument) into tNumber
-         -- log tNumber
-         -- put objC_AVAudioNodeGetNumberOfOutputs(sAVAudioUnitMIDIInstrument) into tNumber
-         -- log tNumber
-         -- check engine to see if itsAVAudioUnitMIDIInstrument is attached to it
-         -- put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
-         -- log tNSObj
          objC_AVAudioEngineAttachNode(sAVAudioEngine,sAVAudioUnitMIDIInstrument)
-         -- check engine again to see if it attached the instrument node sucessfully:
+         -- check engine to see if it attached the instrument node sucessfully:
          put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
          -- log tNSObj
          -- put objC_AVAudioEngineGetOutputNode(sAVAudioEngine) into tNSObj
@@ -270,6 +251,64 @@ public handler AVAudioUnitSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath a
    end if
 end handler
 
+public handler AVAudioUnitSamplerInfo() returns optional any
+   variable tAudioComponentDescription as AudioComponentDescription
+   variable tAudioUnitComponent as optional ObjcId
+   variable tAudioUnit as ObjcId
+   variable tListIterand as any
+   variable tNSError as optional ObjcObject
+   variable tNSErrorDescriptionRef as ObjcId
+   variable tErrorDescription as optional String
+   variable tBool as CBool
+   variable tInfoChunk as String
+   variable tNSStrObj as optional ObjcId
+   variable tStr as optional String
+   variable tNSObj as optional ObjcId
+   variable tNumber as optional Number -- Integer
+   unsafe
+      put objC_AVAudioUnitGetName(sAVAudioUnitMIDIInstrument) into tNSStrObj
+      put StringFromNSString(tNSStrObj) into tStr
+      put "Name: " & tStr & newline into tInfoChunk
+      put objC_AVAudioUnitGetManufacturer(sAVAudioUnitMIDIInstrument)into tNSStrObj
+      put StringFromNSString(tNSStrObj) into tStr
+      put "Manufacturer: " & tStr & newline after tInfoChunk
+      put objC_AVAudioUnitGetVersion(sAVAudioUnitMIDIInstrument) into tNumber -- NaturalUInt
+      put "Version: " & tNumber formatted as string & newline after tInfoChunk
+      put objC_AVAudioNodeGetNumberOfInputs(sAVAudioUnitMIDIInstrument) into tNumber
+      put "Inputs: " & tNumber formatted as string & newline after tInfoChunk
+      put objC_AVAudioNodeGetNumberOfOutputs(sAVAudioUnitMIDIInstrument) into tNumber
+      put "Outputs: " & tNumber formatted as string & newline after tInfoChunk
+      put objC_AVAudioUnitGetACDescription(sAVAudioUnitMIDIInstrument) into tAudioComponentDescription
+      put "AudioComponentDescription: " after tInfoChunk
+      put element 1 of tAudioComponentDescription formatted as string after tInfoChunk
+      put "," after tInfoChunk
+      put element 2 of tAudioComponentDescription formatted as string after tInfoChunk
+      put "," after tInfoChunk
+      put element 3 of tAudioComponentDescription formatted as string after tInfoChunk
+      put "," after tInfoChunk
+      put element 4 of tAudioComponentDescription formatted as string after tInfoChunk
+      put "," after tInfoChunk
+      put element 5 of tAudioComponentDescription formatted as string after tInfoChunk
+      put newline after tInfoChunk
+      put objC_AVAudioUnitGetAudioUnit(sAVAudioUnitMIDIInstrument) into tAudioUnit
+      -- put objC_AVAudioUnitGetAUAudioUnit(sAVAudioUnitMIDIInstrument) into tAudioUnit
+      -- log tAudioUnit -- logging this crashes engine
+
+      -- put objC_AVAudioUnitComponentGetComponent(tAudioUnit) into tAudioUnitComponent
+      -- log tAudioUnitComponent
+      -- put objC_AVAudioUnitComponentHasCustomView(tAudioUnitComponent) into tBool
+      -- if tBool then
+      --   put "Has Custom View" & newline after tInfoChunk
+      -- else
+      --   put "Does Not Have Custom View" & newline after tInfoChunk
+      -- end if
+      -- check engine to see if itsAVAudioUnitMIDIInstrument is attached to it
+      -- put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
+      -- log tNSObj
+   end unsafe
+   return tInfoChunk
+end handler
+
 public handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathsListStr as String) returns optional any
    variable tListIterand as any
    variable tNSURL as ObjcId
@@ -284,7 +323,7 @@ public handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathsListStr as St
    variable tNumber as Number -- Integer
    split pSoundFilesPathsListStr by newline into tSoundFilesPathsList
    -- log tSoundFilesPathsList
-    put the number of elements in tSoundFilesPathsList into tNumber
+    -- put the number of elements in tSoundFilesPathsList into tNumber
     -- log tNumber
       if sAVAudioUnitMIDIInstrument is not nothing then
       unsafe
