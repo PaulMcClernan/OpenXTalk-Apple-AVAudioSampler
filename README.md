@@ -34,3 +34,13 @@ Loads loose Sound Files (mp3,aiff,wav,etc.) files *
 *this handler seems to crash quite a bit when loading more sounds, memory management issue.
 
 Plays some notes
+
+Version 0.5
+
+Loads Downloadable Sound DLS, Sound Font SF2, Emagic/Apple EXS, and AUSampler.aupreset files.
+
+Loads loose Sound Files (mp3,aiff,wav,etc.) files *Temp fix for problem loading individual audio files(s) turns out it was a bug in LiveCode Builder that should be fixed in the next LC Release.
+
+Added a few functions to get info on state of the Audio Engine & AUSampler
+
+Plays some notes
