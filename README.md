@@ -13,8 +13,6 @@ Version 0.2:
 
 Loads DLS & SF2 from files on the fly with program change and bank selecting
 
-Plays 2 notes
-
 Version 0.3:
 
 Loads DLS & SF2 from files on the fly with program change and bank selecting
