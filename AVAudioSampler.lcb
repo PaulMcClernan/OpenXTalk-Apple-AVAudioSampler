@@ -77,7 +77,7 @@ private foreign handler objC_AVAudioUnitMIDIInstrumentChannelPressure(in pAVAUMI
 private foreign handler objC_AVAudioUnitMIDIInstrumentEvent(in pAVAUMIDIInstrInstr as ObjcId, in pStatusByte as UInt8, in pDataOne as UInt8,in pDataTwo as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendMIDIEvent:data1:"
 private foreign handler objC_AVAudioUnitMIDIInstrumentEventTwoBytes(in pAVAUMIDIInstrInstr as ObjcId, in pStatusByte as UInt8, in pDataOne as UInt8,in pDataTwo as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendMIDIEvent:data1:data2:"
 private foreign handler objC_AVAudioUnitMIDIInstrumentController(in pAVAUMIDIInstrInstr as ObjcId, in pController as UInt8, in pValue as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendController:withValue:onChannel:"
-private foreign handler objC_AVAudioUnitMIDIInstrumentPitchbend(in pAVAUMIDIInstrInstr as ObjcId, in pPitchbend as UInt16, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendPitchBend:onChannel:"
+private foreign handler objC_AVAudioUnitMIDIInstrumentPitchbend(in pAVAUMIDIInstrInstr as ObjcId, in pPitchbend as CUint, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitSampler.-sendPitchBend:onChannel:"
 private foreign handler objC_AVAudioUnitMIDIInstrumentProgramChange(in pAVAUMIDIInstrInstr as ObjcId, in pProgram as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendProgramChange:onChannel:"
 private foreign handler objC_AVAudioUnitMIDIInstrumentBankAndProgramChange(in pAVAUMIDIInstrInstr as ObjcId, in pProgram as UInt8, in pBankMSB as UInt8, in pBankLSB as UInt8, in pChanl as UInt8 ) returns nothing binds to "objc:AVAudioUnitMIDIInstrument.-sendProgramChange:bankMSB:bankLSB:onChannel:"
 -- - (void)sendMIDISysExEvent:(NSData *)midiData;
@@ -91,17 +91,13 @@ private foreign handler objC_AVAudioUnitSamplerLoadEXSPresetOrSoundURL(in pAVAUS
 private foreign handler objC_AVAudioUnitSamplerLoadSoundFilesURLs(in pAVAUSampler as ObjcId, in pNSArrayOfNSURLs as ObjcId, out pNSError as optional ObjcId) returns CBool binds to "objc:AVAudioUnitSampler.-loadAudioFilesAtURLs:error:"
 -- loadAudioFilesAtURLs:error: rteturns Boolean
 private foreign handler objC_AVAudioUnitSamplerSetValForKey(in pAVAUSampler as ObjcId, in pValue as ObjcId, in pSelector as ObjcId) returns nothing binds to "objc:AVAudioUnitSampler.-setValue:forKey:"
-private foreign handler objC_AVAudioUnitSamplerMasterGain(in pAVAUSampler as ObjcId, in pGain as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.masterGain"
--- masterGain -- float
--- Adjustment for the gain, in decibels, of all the notes played.
+private foreign handler objC_AVAudioUnitSamplerGetValForKey(in pAVAUSampler as ObjcId, in pSelector as ObjcId) returns ObjcId binds to "objc:AVAudioUnitSampler.-valueForKey:"
+
+private foreign handler objC_AVAudioUnitSamplerGetMasterGain(in pAVAUSampler as ObjcId) returns ObjcId binds to "objc:AVAudioUnitSampler.masterGain"
 -- default value is 0.0 dB. The range of valid values is -90.0 dB to 12.0 dB.
-private foreign handler objC_AVAudioUnitSamplerStereoPan(in pAVAUSampler as ObjcId, in pPan as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.stereoPan"
--- stereoPan -- float
--- default value is 0.0. The range of valid values is -1.0 to 1.0.
-private foreign handler objC_AVAudioUnitSamplerGlobalTuning(in pAVAUSampler as ObjcId, in pGTuning as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.globalTuning"
--- globalTuning -- @property(nonatomic) float globalTuning;
--- The tuning unit is cents. The default value is 0.0.
--- The range of valid values is -2400 to 2400 cents.
+private foreign handler objC_AVAudioUnitSamplerGetStereoPan(in pAVAUSampler as ObjcId, in pPan as ObjcId) returns ObjcId binds to "objc:AVAudioUnitSampler.stereoPan"
+-- stereoPan -- float -- default value is 0.0. The range of valid values is -1.0 to 1.0.
+private foreign handler objC_AVAudioUnitSamplerGetGlobalTuning(in pAVAUSampler as ObjcId, in pGTuning as ObjcId) returns ObjcId binds to "objc:AVAudioUnitSampler.globalTuning"
 
 private foreign handler objC_AVAudioUnitSamplerNoteOn(in pAVAUSampler as ObjcId,in pNoteNum as UInt8, in pNoteVelo as UInt8, in pNoteChan as UInt8) returns nothing binds to "objc:AVAudioUnitSampler.-startNote:withVelocity:onChannel:"
 private foreign handler objC_AVAudioUnitSamplerNoteOff(in pAVAUSampler as ObjcId, in pNoteNum as UInt8, in pNoteChan as UInt8) returns nothing binds to "objc:AVAudioUnitSampler.-stopNote:onChannel:"
@@ -364,43 +360,43 @@ public handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathsListStr as St
 end handler
 
 public handler AVAudioUnitSamplerSetMasterGain(in pGain as optional NaturalFloat) returns nothing
-   --private foreign handler objC_AVAudioUnitSamplerMasterGain(in pAVAUSampler as ObjcId, in pGain as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.masterGain"
-   -- masterGain -- float
-   -- Adjustment for the gain, in decibels, of all the notes played.
+   -- masterGain -- float -- Adjustment for the gain, in decibels, of all the notes played.
    -- default value is 0.0 dB. The range of valid values is -90.0 dB to 12.0 dB.
    if pGain is nothing then
       put 0.0 into pGain
    end if
    unsafe
     objC_AVAudioUnitSamplerSetValForKey(sAVAudioUnitMIDIInstrument,NumberToNSNumber(pGain),StringToNSString("masterGain"))
-   -- objC_AVAudioUnitSamplerMasterGain(sAVAudioUnitMIDIInstrument,pGain)
+   end unsafe
+end handler
+public handler AVAudioUnitSamplerGetMasterGain() returns Number
+   variable rGain as ObjcId
+   variable tGain as NaturalFloat
+   unsafe
+    put objC_AVAudioUnitSamplerGetValForKey(sAVAudioUnitMIDIInstrument,StringToNSString("masterGain")) into rGain
+    return NumberFromNSNumber(rGain)
    end unsafe
 end handler
 
-public handler AVAudioUnitSamplerSetStereoPan(in pBalance as optional NaturalFloat) returns nothing
+public handler AVAudioUnitSamplerSetStereoPan(in pBalance as optional Number) returns nothing
    --private foreign handler objC_AVAudioUnitSamplerStereoPan(in pAVAUSampler as ObjcId, in pPan as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.stereoPan"
-   -- stereoPan -- float
-   -- default value is 0.0. The range of valid values is -1.0 to 1.0.
+   -- stereoPan -- float -- default value is 0.0. The range of valid values is -1.0 to 1.0.
    if pBalance is nothing then
       put 0.0 into pBalance
    end if
    unsafe
-   objC_AVAudioUnitSamplerSetValForKey(sAVAudioUnitMIDIInstrument,NumberToNSNumber(pBalance),StringToNSString("stereoPan"))
-   -- objC_AVAudioUnitSamplerStereoPan(sAVAudioUnitMIDIInstrument,pBalance)
+   objC_AVAudioUnitSamplerSetValForKey(sAVAudioUnitMIDIInstrument,NumberToNSNumber(pBalance),StringToNSString("pan"))
    end unsafe
 end handler
 
-public handler AVAudioUnitSamplerSetGlobalTuning(in pCents as optional NaturalFloat) returns nothing
-   --private foreign handler objC_AVAudioUnitSamplerGlobalTuning(in pAVAUSampler as ObjcId, in pGTuning as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.globalTuning"
-   -- globalTuning -- @property(nonatomic) float globalTuning;
-   -- The tuning unit is cents. The default value is 0.0.
-   -- The range of valid values is -2400 to 2400 cents.
+public handler AVAudioUnitSamplerSetGlobalTuning(in pCents as optional Number) returns nothing
+   -- globalTuning -- @property(nonatomic) float globalTuning; -- The tuning unit is cents.
+   -- The default value is 0.0 -- The range of valid values is -2400 to 2400 cents.
    if pCents is nothing then
-      put 0.0 into pCents
+      put 0 into pCents
    end if
    unsafe
        objC_AVAudioUnitSamplerSetValForKey(sAVAudioUnitMIDIInstrument,NumberToNSNumber(pCents),StringToNSString("globalTuning"))
-      --objC_AVAudioUnitSamplerGlobalTuning(sAVAudioUnitMIDIInstrument,pCents)
    end unsafe
 end handler
 
@@ -413,6 +409,17 @@ end handler
 public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Integer) returns nothing
    unsafe
       objC_AVAudioUnitSamplerNoteOff(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteChan)
+   end unsafe
+end handler
+
+public handler AVAudioUnitSamplerPitchbend(in pBend as Number) returns nothing
+   --if pChan is nothing then
+   --   put 0 into pChan
+   -- end if
+   -- Value of the pitchbend. The valid range of values is 0 to 16383.
+   -- default value of 8192 (no pitch bend)
+   unsafe
+      objC_AVAudioUnitMIDIInstrumentPitchbend(sAVAudioUnitMIDIInstrument,pBend,0)
    end unsafe
 end handler
 
