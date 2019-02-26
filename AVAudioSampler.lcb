@@ -412,7 +412,9 @@ public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as
    end unsafe
 end handler
 
-public handler AVAudioUnitSamplerPitchbend(in pBend as Number) returns nothing
+public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
+   --log pBend
+   -- variable tChan as Integer
    --if pChan is nothing then
    --   put 0 into pChan
    -- end if
