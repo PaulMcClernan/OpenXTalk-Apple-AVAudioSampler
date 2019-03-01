@@ -14,9 +14,8 @@ Version 0.2:
 Loads DLS & SF2 from files on the fly with program change and bank selecting
 
 Version 0.3:
-
-Loads DLS & SF2 from files on the fly with program change and bank selecting
-Loads EXS24 (Logic/GarageBand sampler instruments) & Apple Sampler .AUPresets files
+- Loads DLS & SF2 from files on the fly with program change and bank selecting
+- Loads EXS24 (Logic/GarageBand sampler instruments) & Apple Sampler .AUPresets files
 
 Version 0.4:
 
@@ -32,3 +31,8 @@ Added a few functions to get info on state of the Audio Engine & AUSampler
 Version 0.6
 
 Added AUSampler global settings: Gain, Stereo Pan, Tuning
+
+Version 0.6.5 ish:
+-- Added Pitchbend Send
+-- Bug Fixes & Minor or Cosmetic Updates to Demo Stack
+-- Demo stack now has button that scans for EXS Instruments from GarageBand & Logic standard Sampler Instruments folders
