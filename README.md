@@ -1,6 +1,8 @@
 # LCB_AppleAVAudioSampler
 A LiveCode Builder Module that binds to Apple's AudioUnit Sampler Synth!
 
+https://www.youtube.com/watch?v=va9WbnLrc00
+
 Version 0.1:
 
 Proof of concept working on macOS, yeah!
@@ -35,5 +37,6 @@ Version 0.6
 
 Version 0.6.5 ish:
 - Added Pitchbend Send
+- Added General MIDI Controller Send
 - Bug Fixes & Minor or Cosmetic Updates to Demo Stack
 - Demo stack now has button that scans for EXS Instruments from GarageBand & Logic standard Sampler Instruments folders
