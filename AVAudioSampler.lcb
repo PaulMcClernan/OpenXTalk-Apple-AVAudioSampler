@@ -425,4 +425,10 @@ public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
    end unsafe
 end handler
 
+public handler AVAudioUnitSamplerController(pController as UInt8, in pValue as UInt8, in pChanl as UInt8) returns nothing
+   unsafe
+      objC_AVAudioUnitMIDIInstrumentController(sAVAudioUnitMIDIInstrument,pController,pValue,0)
+   end unsafe
+end handler
+
 end library
