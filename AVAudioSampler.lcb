@@ -1,3 +1,15 @@
+/**
+This library contains bindings for Apple's AVAudio Sampler Instrument AudioUnit, useful creating musical Audio output using Sounds (aif, wav, mp3) or Soundbank files (SF2, DLS, and some EXS format).
+
+OS:
+macOS
+
+Description:
+This library is a wrapper for Apple's AVAudio Sampler Instrument AudioUnit.
+
+>*Note:* This library is MIT licensed (permissive).
+> Please share and share a like.
+*/
 library community.appleavaudiosampler.paulmcclernan
 
 use com.livecode.engine
@@ -124,6 +136,18 @@ private foreign handler objC_AVAudioNodeGetEngine(in pAVAUSampler as ObjcId) ret
 private variable sAVAudioEngine as optional ObjcObject
 private variable sAVAudioUnitMIDIInstrument as optional ObjcObject
 
+
+/**
+Setup Audio Engine with attached Sampler AudioUnit.
+
+Type: command
+
+Example:
+AVAudioEngineSamplerInit
+
+Description:
+Initializes Audio Engine, Output Mixer, and Sampler AudioUnit and attaches them together.
+*/
 public handler AVAudioEngineSamplerInit() returns optional any
    variable tSoundFontNSURL as ObjcObject
    variable tAVAudioEngineDidStart as Boolean
@@ -400,18 +424,74 @@ public handler AVAudioUnitSamplerSetGlobalTuning(in pCents as optional Number) r
    end unsafe
 end handler
 
+/**
+Immediately sends a MIDI Note On message with the given pitch and velocity on the given channel.
+
+Type: command
+
+Syntax: AVAudioUnitSamplerNoteOn <MIDINoteNumber>,pMIDIVelocityNumber,<pMIDIChannelNumber>
+
+Example:
+AVAudioUnitSamplerNoteOn 60,127,1 -- 60=Middle C, 127=Full velocity, 1=MIDI channel 1
+
+Parameters:
+pMIDINoteNum: The number of the pitch to turn on, 0 to 127, 60 = Middle C
+pMIDIVeloNum: The velocity to play the given pitch at, 0 to 127
+pMIDIChanNum: The MIDI Channel to play the note on, 1 to 16
+
+Description: Immediately sends a MIDI Note On message with the given pitch and velocity on the given channel.
+*/
 public handler AVAudioUnitSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Integer, in pNoteChan as Integer) returns nothing
    unsafe
       objC_AVAudioUnitSamplerNoteOn(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteVelo,pNoteChan)
    end unsafe
 end handler
 
+/**
+Name: AVAudioUnitSamplerNoteOff
+
+Type: command
+
+Syntax: AVAudioUnitSamplerNoteOff <MIDINoteNumber>,<MIDIChannelNumber>
+
+Summary:
+Immediately sends a MIDI Note Off message with the given pitch and velocity on the given channel.
+
+Example:
+AVAudioUnitSamplerNoteOff 60,1 -- Turns off Middle C on MIDI channel 1
+
+Parameters:
+pMIDINoteNum: The number of the pitch to turn off, 0 to 127, 60 = Middle C
+pMIDIChanNum: The MIDI Channel to send the message to, 0 to 15, 0 = Channel 1
+
+Description:
+Immediately sends a MIDI Note Off message with the given pitch on the given channel.
+*/
 public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Integer) returns nothing
    unsafe
       objC_AVAudioUnitSamplerNoteOff(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteChan)
    end unsafe
 end handler
 
+/**
+The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
+
+Type: command
+
+Syntax: AVAudioUnitSamplerPitchbend <pPitchBendCoarseNFine>,<pMIDIChanNum>
+
+Example:
+CoreMIDIPitchbendFine 0,1 -- Pitchbend Maximum Down, channel 1
+CoreMIDIPitchbendFine 16384,1 -- Pitchbend Maximum Up, channel 1
+CoreMIDIPitchbendFine 8192,1 -- Centered / No Bend, channel 1
+
+Parameters:
+pPitchBendCoarseNFine: The number of the pitch bend 'position'
+pMIDIChanNum: MIDI Channel to send the bend value on, 1 to 16
+
+Description:
+The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
+*/
 public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
    --log pBend
    -- variable tChan as Integer
@@ -425,6 +505,27 @@ public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
    end unsafe
 end handler
 
+/**
+Name: AVAudioUnitSamplerController
+
+Type: command
+
+Syntax: AVAudioUnitSamplerController(<pController>,<pControllerVal><pMIDIChanNum>)
+
+Summary:
+The send a controller with a single data byte value to on a given channel
+
+Example:
+AVAudioUnitSamplerController 7,127,1 -- 7 = Volume Controller, Data Byte 1, channel 1
+
+Parameters:
+pController: The number of the MIDI Controller to set values for
+pControllerVal: The value byte one
+pMIDIChanNum: MIDI Channel to send the controller value on, 1 to 16
+
+Description:
+The send a controller with a single data byte value to on a given channel
+*/
 public handler AVAudioUnitSamplerController(pController as UInt8, in pValue as UInt8, in pChanl as UInt8) returns nothing
    unsafe
       objC_AVAudioUnitMIDIInstrumentController(sAVAudioUnitMIDIInstrument,pController,pValue,0)
