@@ -1,8 +1,10 @@
 /**
-This library contains bindings for Apple's AVAudio Sampler Instrument AudioUnit, useful creating musical Audio output using Sounds (aif, wav, mp3) or Soundbank files (SF2, DLS, and some EXS format).
+This library contains bindings for Apple's AVAudio Sampler Instrument AudioUnit, useful for creating musical audio output using Sounds (aif, wav, mp3) or Soundbank files (SF2, DLS, and some EXS format).
 
 OS:
-macOS
+mac, iOS (untested)
+
+Edition: Community
 
 Description:
 This library is a wrapper for Apple's AVAudio Sampler Instrument AudioUnit.
@@ -140,13 +142,15 @@ private variable sAVAudioUnitMIDIInstrument as optional ObjcObject
 /**
 Setup Audio Engine with attached Sampler AudioUnit.
 
-Type: command
+Type: function
 
 Example:
-AVAudioEngineSamplerInit
+AVAudioEngineSamplerInit()
+
+Returns: True on success, False or error string on failure, or the string "AVAudioSampler is already running."
 
 Description:
-Initializes Audio Engine, Output Mixer, and Sampler AudioUnit and attaches them together.
+Attempts to initializes instances of Audio Engine, Output Mixer, and Sampler AudioUnit and attach them together.
 */
 public handler AVAudioEngineSamplerInit() returns optional any
    variable tSoundFontNSURL as ObjcObject
@@ -188,7 +192,7 @@ public handler AVAudioEngineSamplerInit() returns optional any
          end if
       end unsafe
    else
-      return "AVAudioEngine is Already Running"
+      return "AVAudioSampler is already running."
    end if
 end handler
 
@@ -441,7 +445,11 @@ pMIDIChanNum: The MIDI Channel to play the note on, 1 to 16
 
 Description: Immediately sends a MIDI Note On message with the given pitch and velocity on the given channel.
 */
-public handler AVAudioUnitSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Integer, in pNoteChan as Integer) returns nothing
+public handler AVAudioUnitSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Integer, in pNoteChan as Number) returns nothing
+   expect that (pNoteNum >= 0 and pNoteNum <= 127 ) because "MIDI pitch values must be in the range of 0 to 127"
+   expect that (pNoteVelo >= 0 and pNoteVelo <= 127 ) because "MIDI veloctiy values must be in the range of 0 to 127"
+   expect that (pNoteChan >= 1 and pNoteChan <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
+   subtract 1 from pNoteChan -- actual channel range is 0 to 15
    unsafe
       objC_AVAudioUnitSamplerNoteOn(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteVelo,pNoteChan)
    end unsafe
@@ -467,7 +475,10 @@ pMIDIChanNum: The MIDI Channel to send the message to, 0 to 15, 0 = Channel 1
 Description:
 Immediately sends a MIDI Note Off message with the given pitch on the given channel.
 */
-public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Integer) returns nothing
+public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Number) returns nothing
+   expect that (pNoteNum >= 0 and pNoteNum <= 127 ) because "MIDI pitch values must be in the range of 0 to 127"
+   expect that (pNoteChan >= 1 and pNoteChan <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
+   subtract 1 from pNoteChan -- actual channel range is 0 to 15
    unsafe
       objC_AVAudioUnitSamplerNoteOff(sAVAudioUnitMIDIInstrument,pNoteNum,pNoteChan)
    end unsafe
@@ -481,9 +492,9 @@ Type: command
 Syntax: AVAudioUnitSamplerPitchbend <pPitchBendCoarseNFine>,<pMIDIChanNum>
 
 Example:
-CoreMIDIPitchbendFine 0,1 -- Pitchbend Maximum Down, channel 1
-CoreMIDIPitchbendFine 16384,1 -- Pitchbend Maximum Up, channel 1
-CoreMIDIPitchbendFine 8192,1 -- Centered / No Bend, channel 1
+AVAudioUnitSamplerPitchbend 0,1 -- Pitchbend Maximum Down, channel 1
+AVAudioUnitSamplerPitchbend 16384,1 -- Pitchbend Maximum Up, channel 1
+AVAudioUnitSamplerPitchbend 8192,1 -- Centered / No Bend, channel 1
 
 Parameters:
 pPitchBendCoarseNFine: The number of the pitch bend 'position'
@@ -493,6 +504,8 @@ Description:
 The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
 */
 public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
+   expect that (pBend >= 0 and pBend <= 16384 ) because "MIDI controller selection must be in the range of 0 to 127"
+   -- expect that (pMIDIChanNum >= 1 and pMIDIChanNum <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
    --log pBend
    -- variable tChan as Integer
    --if pChan is nothing then
@@ -510,7 +523,7 @@ Name: AVAudioUnitSamplerController
 
 Type: command
 
-Syntax: AVAudioUnitSamplerController(<pController>,<pControllerVal><pMIDIChanNum>)
+Syntax: AVAudioUnitSamplerController <pController>, <pControllerVal>, <pMIDIChanNum>
 
 Summary:
 The send a controller with a single data byte value to on a given channel
