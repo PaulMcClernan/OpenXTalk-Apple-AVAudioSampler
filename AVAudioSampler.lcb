@@ -152,7 +152,7 @@ Returns: True on success, False or error string on failure, or the string "AVAud
 Description:
 Attempts to initializes instances of Audio Engine, Output Mixer, and Sampler AudioUnit and attach them together.
 */
-public handler AVAudioEngineSamplerInit() returns optional any
+public handler AVAudioSamplerInit() returns optional any
    variable tSoundFontNSURL as ObjcObject
    variable tAVAudioEngineDidStart as Boolean
    variable tNSError as optional ObjcObject
@@ -196,7 +196,20 @@ public handler AVAudioEngineSamplerInit() returns optional any
    end if
 end handler
 
-public handler AVAudioEngineIsRunning() returns optional any
+/**
+Check if AVAudioSampler's AudioEngine is already running.
+
+Type: function
+
+Example:
+AVAudioSamplerEngineIsRunning()
+
+Returns: True if the AVAudioSampler's AudioEngine is already running, false if it is not.
+
+Description:
+Check if AVAudioSampler's AudioEngine instance is already running.
+*/
+public handler AVAudioSamplerEngineIsRunning() returns optional any
    if sAVAudioEngine is nothing then
       return false
    else
@@ -208,7 +221,18 @@ public handler AVAudioEngineIsRunning() returns optional any
    end if
 end handler
 
-public handler AVAudioEngineRestart() returns nothing
+/**
+Restarts the AVAudioSampler Engine.
+
+Type: command
+
+Example:
+AVAudioSamplerEngineRestart
+
+Description:
+Restarts the AVAudioSampler Engine after it has been stopped or paused.
+*/
+public handler AVAudioSamplerEngineRestart() returns nothing
    variable tAVAudioEngineDidStart as Boolean
    variable tNSError as optional ObjcObject
    variable tNSErrorDescriptionRef as ObjcObject
@@ -225,25 +249,77 @@ public handler AVAudioEngineRestart() returns nothing
    end if
 end handler
 
-public handler AVAudioEngineStop() returns nothing
+/**
+Stops the AVAudioSampler Engine running.
+
+Type: command
+
+Example:
+AVAudioSamplerEngineStop
+
+Description:
+Stops the running AVAudioSampler Engine. The Engine should be stopped or paused when not in use to avoid device CPU and battery useage.
+*/
+public handler AVAudioSamplerEngineStop() returns nothing
    unsafe
       objC_AVAudioEngineStop(sAVAudioEngine)
    end unsafe
 end handler
 
-public handler AVAudioEnginePause() returns nothing
+/**
+Temporarily pauses the running AVAudioSampler Engine.
+
+Type: command
+
+Example:
+AVAudioSamplerEnginePause
+
+Description:
+Temporarily pauses the running AVAudioSampler Engine. The Engine should be stopped or paused when not in use to avoid device CPU and battery useage.
+*/
+public handler AVAudioSamplerEnginePause() returns nothing
    unsafe
       objC_AVAudioEnginePause(sAVAudioEngine)
    end unsafe
 end handler
 
-public handler AVAudioEngineReset() returns nothing
+/**
+Resets the AVAudioSampler Engine to default state.
+
+Type: command
+
+Example:
+AVAudioSamplerEngineReset
+
+Description:
+This resets AVAudioSampler Engine to it's default state. Use it, for example, to silence effects such as delay echoes.
+*/
+public handler AVAudioSamplerEngineReset() returns nothing
    unsafe
       objC_AVAudioEngineReset(sAVAudioEngine)
    end unsafe
 end handler
 
-public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as optional String, in pProgramNum as optional Integer, in pBankMSB as optional Integer, in pBankLSB as optional Integer) returns optional any
+/**
+Loads a soundbank file or type SF2 or DLS into AVAudioSampler and optional sets it to a given program or patch and bank.
+
+Type: command
+
+Syntax: AVAudioSamplerLoadSF2DLS pSoundBankPath, pProgramNum, pBankMSB, pBankLSB
+
+Example:
+put "/System/Library/Components/CoreAudio.component/Contents/Resources/gs_instruments.dls" into pSoundFontPath -- Apple's default instrument sounds
+AVAudioSamplerLoadSF2DLS pSoundFontPath,19,,  -- General MIDI Rock Organ
+
+Parameters:
+pSoundFontPath: The path to a Soundbank file
+pProgramNum: A Program number to set 0 to 127
+pBankMSB: Bank number Most Significant Byte
+pBankLSB: Bank number Least Significant Byte
+
+Description: Loads a soundbank file or type SF2 or DLS into AVAudioSampler and optional sets it to a given program or patch and bank.
+*/
+public handler AVAudioSamplerLoadSF2DLS(in pSoundFontPath as optional String, in pProgramNum as optional Integer, in pBankMSB as optional Integer, in pBankLSB as optional Integer) returns optional any
    variable tSoundFontNSURL as ObjcObject
    variable tNSError as optional ObjcObject
    variable tNSErrorDescriptionRef as ObjcObject
@@ -276,7 +352,23 @@ public handler AVAudioEngineSamplerLoadSF2DLS(in pSoundFontPath as optional Stri
    end if
 end handler
 
-public handler AVAudioUnitSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath as optional String) returns optional any
+/**
+Attempts to Load an EXS or AUPreset file into the AVAudioSampler.
+
+Type: command
+
+Syntax: AVAudioSamplerLoadEXSPresetOrSound pEXSPresetOrSoundPath
+
+Example:
+put "/Library/Application Support/GarageBand/Instrument Library/Sampler/Sampler Instruments/iOS Instruments/Flute iOS KB.exs" into pEXSPresetOrSoundPath
+AVAudioSamplerLoadEXSPresetOrSound pEXSPresetOrSoundPath
+
+Parameters:
+pEXSPresetOrSoundPath: The file path to a EXS or AUPreset file
+
+Description: Attempts to Load an EXS Patch (Logic or GarageBand Instrument) or an AUPreset file into the AVAudioSampler.
+*/
+public handler AVAudioSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath as optional String) returns optional any
    variable tEXSPresetOrSoundURL as ObjcObject
    variable tNSError as optional ObjcId
    variable tNSErrorDescriptionRef as ObjcId
@@ -297,7 +389,20 @@ public handler AVAudioUnitSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath a
    end if
 end handler
 
-public handler AVAudioUnitSamplerInfo() returns optional any
+/**
+Gets info About the running AVAudioSampler.
+
+Type: function
+
+Example:
+get AVAudioSamplerInfo()
+
+Returns: Comma seperated string of items. Name, Manufacturer, Version, Number of Inputs, Number of Outputs, AudioComponentDescription
+
+Description:
+Gets info About the running AVAudioSampler, mostly here for developement usage for now.
+*/
+public handler AVAudioSamplerInfo() returns optional any
    variable tAudioComponentDescription as AudioComponentDescription
    variable tAudioUnitComponent as optional ObjcId
    variable tAudioUnit as ObjcId
@@ -355,10 +460,33 @@ public handler AVAudioUnitSamplerInfo() returns optional any
       -- put objC_AVAudioNodeGetEngine(sAVAudioUnitMIDIInstrument) into tNSObj -- Null if Node is not attached to an AVAudioEngine
       -- log tNSObj
    end unsafe
+   -- Name: AUSampler
+   -- Manufacturer: Apple
+   -- Version: 65536
+   -- Inputs: 0
+   -- Outputs: 1
+   -- AudioComponentDescription: aumu,samp,appl,0,0
    return tInfoChunk
 end handler
 
-public handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathsListStr as String) returns optional any
+/**
+Attempts one or more individual sound files into the AVAudioSampler.
+
+Type: command
+
+Syntax: AVAudioSamplerLoadSoundFiles pSoundFilesPathsListStr
+
+Example:
+put "/System/Library/Sounds/Sosumi.aiff" into pSoundFilesPathsListStr
+AVAudioSamplerLoadSoundFiles pSoundFilesPathsListStr
+
+Parameters:
+pSoundFilesPathsListStr: The file or paths (line delimited) to one or more sound files.
+
+Description: Attempts one or more individual sound files from given line delimited list of file paths into the AVAudioSampler.
+The sounds maybe in any of a number of natively supported formats such as (.caf, .mp3, .aif).
+*/
+public handler AVAudioSamplerLoadSoundFiles(in pSoundFilesPathsListStr as String) returns optional any
    variable tListIterand as any
    variable tSoundFilesPathsList as List
    variable tSoundFilesNSURLsList as List
@@ -387,7 +515,7 @@ public handler AVAudioUnitSamplerLoadSoundFiles(in pSoundFilesPathsListStr as St
    end if
 end handler
 
-public handler AVAudioUnitSamplerSetMasterGain(in pGain as optional NaturalFloat) returns nothing
+public handler AVAudioSamplerSetMasterGain(in pGain as optional NaturalFloat) returns nothing
    -- masterGain -- float -- Adjustment for the gain, in decibels, of all the notes played.
    -- default value is 0.0 dB. The range of valid values is -90.0 dB to 12.0 dB.
    if pGain is nothing then
@@ -397,7 +525,7 @@ public handler AVAudioUnitSamplerSetMasterGain(in pGain as optional NaturalFloat
     objC_AVAudioUnitSamplerSetValForKey(sAVAudioUnitMIDIInstrument,NumberToNSNumber(pGain),StringToNSString("masterGain"))
    end unsafe
 end handler
-public handler AVAudioUnitSamplerGetMasterGain() returns Number
+public handler AVAudioSamplerGetMasterGain() returns Number
    variable rGain as ObjcId
    variable tGain as NaturalFloat
    unsafe
@@ -406,7 +534,7 @@ public handler AVAudioUnitSamplerGetMasterGain() returns Number
    end unsafe
 end handler
 
-public handler AVAudioUnitSamplerSetStereoPan(in pBalance as optional Number) returns nothing
+public handler AVAudioSamplerSetStereoPan(in pBalance as optional Number) returns nothing
    --private foreign handler objC_AVAudioUnitSamplerStereoPan(in pAVAUSampler as ObjcId, in pPan as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.stereoPan"
    -- stereoPan -- float -- default value is 0.0. The range of valid values is -1.0 to 1.0.
    if pBalance is nothing then
@@ -417,7 +545,7 @@ public handler AVAudioUnitSamplerSetStereoPan(in pBalance as optional Number) re
    end unsafe
 end handler
 
-public handler AVAudioUnitSamplerSetGlobalTuning(in pCents as optional Number) returns nothing
+public handler AVAudioSamplerSetGlobalTuning(in pCents as optional Number) returns nothing
    -- globalTuning -- @property(nonatomic) float globalTuning; -- The tuning unit is cents.
    -- The default value is 0.0 -- The range of valid values is -2400 to 2400 cents.
    if pCents is nothing then
@@ -445,7 +573,7 @@ pMIDIChanNum: The MIDI Channel to play the note on, 1 to 16
 
 Description: Immediately sends a MIDI Note On message with the given pitch and velocity on the given channel.
 */
-public handler AVAudioUnitSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Integer, in pNoteChan as Number) returns nothing
+public handler AVAudioSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Integer, in pNoteChan as Number) returns nothing
    expect that (pNoteNum >= 0 and pNoteNum <= 127 ) because "MIDI pitch values must be in the range of 0 to 127"
    expect that (pNoteVelo >= 0 and pNoteVelo <= 127 ) because "MIDI veloctiy values must be in the range of 0 to 127"
    expect that (pNoteChan >= 1 and pNoteChan <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
@@ -489,12 +617,12 @@ The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
 
 Type: command
 
-Syntax: AVAudioUnitSamplerPitchbend <pPitchBendCoarseNFine>,<pMIDIChanNum>
+Syntax: AVAudioSamplerPitchbend <pPitchBendCoarseNFine>,<pMIDIChanNum>
 
 Example:
-AVAudioUnitSamplerPitchbend 0,1 -- Pitchbend Maximum Down, channel 1
-AVAudioUnitSamplerPitchbend 16384,1 -- Pitchbend Maximum Up, channel 1
-AVAudioUnitSamplerPitchbend 8192,1 -- Centered / No Bend, channel 1
+AVAudioSamplerPitchbend 0,1 -- Pitchbend Maximum Down, channel 1
+AVAudioSamplerPitchbend 16384,1 -- Pitchbend Maximum Up, channel 1
+AVAudioSamplerPitchbend 8192,1 -- Centered / No Bend, channel 1
 
 Parameters:
 pPitchBendCoarseNFine: The number of the pitch bend 'position'
@@ -503,7 +631,7 @@ pMIDIChanNum: MIDI Channel to send the bend value on, 1 to 16
 Description:
 The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
 */
-public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
+public handler AVAudioSamplerPitchbend(in pBend as Uint16) returns nothing
    expect that (pBend >= 0 and pBend <= 16384 ) because "MIDI controller selection must be in the range of 0 to 127"
    -- expect that (pMIDIChanNum >= 1 and pMIDIChanNum <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
    --log pBend
@@ -519,17 +647,17 @@ public handler AVAudioUnitSamplerPitchbend(in pBend as Uint16) returns nothing
 end handler
 
 /**
-Name: AVAudioUnitSamplerController
+Name: AVAudioSamplerController
 
 Type: command
 
-Syntax: AVAudioUnitSamplerController <pController>, <pControllerVal>, <pMIDIChanNum>
+Syntax: AVAudioSamplerController <pController>, <pControllerVal>, <pMIDIChanNum>
 
 Summary:
 The send a controller with a single data byte value to on a given channel
 
 Example:
-AVAudioUnitSamplerController 7,127,1 -- 7 = Volume Controller, Data Byte 1, channel 1
+AVAudioSamplerController 7,127,1 -- 7 = Volume Controller, Data Byte 1, channel 1
 
 Parameters:
 pController: The number of the MIDI Controller to set values for
@@ -539,7 +667,7 @@ pMIDIChanNum: MIDI Channel to send the controller value on, 1 to 16
 Description:
 The send a controller with a single data byte value to on a given channel
 */
-public handler AVAudioUnitSamplerController(pController as UInt8, in pValue as UInt8, in pChanl as UInt8) returns nothing
+public handler AVAudioSamplerController(pController as UInt8, in pValue as UInt8, in pChanl as UInt8) returns nothing
    unsafe
       objC_AVAudioUnitMIDIInstrumentController(sAVAudioUnitMIDIInstrument,pController,pValue,0)
    end unsafe
