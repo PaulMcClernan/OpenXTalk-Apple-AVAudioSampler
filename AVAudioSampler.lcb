@@ -584,7 +584,7 @@ public handler AVAudioSamplerNoteOn(in pNoteNum as Integer, in pNoteVelo as Inte
 end handler
 
 /**
-Name: AVAudioUnitSamplerNoteOff
+Name: AVAudioSamplerNoteOff
 
 Type: command
 
@@ -603,7 +603,7 @@ pMIDIChanNum: The MIDI Channel to send the message to, 0 to 15, 0 = Channel 1
 Description:
 Immediately sends a MIDI Note Off message with the given pitch on the given channel.
 */
-public handler AVAudioUnitSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Number) returns nothing
+public handler AVAudioSamplerNoteOff(in pNoteNum as Integer, in pNoteChan as Number) returns nothing
    expect that (pNoteNum >= 0 and pNoteNum <= 127 ) because "MIDI pitch values must be in the range of 0 to 127"
    expect that (pNoteChan >= 1 and pNoteChan <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
    subtract 1 from pNoteChan -- actual channel range is 0 to 15
