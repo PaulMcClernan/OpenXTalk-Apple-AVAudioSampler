@@ -515,7 +515,26 @@ public handler AVAudioSamplerLoadSoundFiles(in pSoundFilesPathsListStr as String
    end if
 end handler
 
+/**
+Sets the master gain value for the AVAudioSampler in the dB range of -90.0 to 12.0
+
+Type: command
+
+Syntax: AVAudioSamplerSetMasterGain <pGain>
+
+Example:
+AVAudioSamplerSetMasterGain 12.0 -- Amplified!
+AVAudioSamplerSetMasterGain 0 -- Normal Gain
+AVAudioSamplerSetMasterGain -90.0 -- Can't even hear this!
+
+Parameters:
+pGain: The amount of gain on sound output in the dB range of -90.0 to 12.0
+
+Description:
+Sets the master gain value for the AVAudioSampler sound output in the dB range of -90.0 (silent) to 12.0 (amplified)
+*/
 public handler AVAudioSamplerSetMasterGain(in pGain as optional NaturalFloat) returns nothing
+   expect that (pGain >= -90.0 and pGain <= 12.0 ) because "Master Gain values must be in the dB range of -90.0 to 12.0"
    -- masterGain -- float -- Adjustment for the gain, in decibels, of all the notes played.
    -- default value is 0.0 dB. The range of valid values is -90.0 dB to 12.0 dB.
    if pGain is nothing then
@@ -525,6 +544,20 @@ public handler AVAudioSamplerSetMasterGain(in pGain as optional NaturalFloat) re
     objC_AVAudioUnitSamplerSetValForKey(sAVAudioUnitMIDIInstrument,NumberToNSNumber(pGain),StringToNSString("masterGain"))
    end unsafe
 end handler
+
+/**
+Gets the value of the current gain amount (dB) that the AVAudioSampler sound output is set for.
+
+Type: function
+
+Example:
+AVAudioSamplerGetMasterGain()
+
+Returns: number in the range of -90.0 to 12.0, the amount of gain (dB) that sound output is currently set for.
+
+Description:
+Gets the value of the current gain amount (dB) that the AVAudioSampler sound output is set for.
+*/
 public handler AVAudioSamplerGetMasterGain() returns Number
    variable rGain as ObjcId
    variable tGain as NaturalFloat
@@ -534,9 +567,28 @@ public handler AVAudioSamplerGetMasterGain() returns Number
    end unsafe
 end handler
 
+/**
+Sets the Stereo pan values in the range of -1.0 (left) to 1.0 (right)
+
+Type: command
+
+Syntax: AVAudioSamplerSetStereoPan <pBalance>
+
+Example:
+AVAudioSamplerSetStereoPan -1.0 -- all sounds output in left speaker
+AVAudioSamplerSetStereoPan 0 -- all sounds centered
+AVAudioSamplerSetStereoPan 1.0 -- all sounds output in right speaker
+
+Parameters:
+pBalance: The amount to shift sound output to the left or the right
+
+Description:
+Sets the amount to shift sound output to the left or right in the range of -1.0 (left) to 1.0 (right)
+*/
 public handler AVAudioSamplerSetStereoPan(in pBalance as optional Number) returns nothing
    --private foreign handler objC_AVAudioUnitSamplerStereoPan(in pAVAUSampler as ObjcId, in pPan as NaturalFloat) returns nothing binds to "objc:AVAudioUnitSampler.stereoPan"
    -- stereoPan -- float -- default value is 0.0. The range of valid values is -1.0 to 1.0.
+   expect that (pBalance >= -1.0 and pBalance <= 1.0 ) because "Stereo pan values must be in the range of -1.0 to 1.0"
    if pBalance is nothing then
       put 0.0 into pBalance
    end if
@@ -545,7 +597,26 @@ public handler AVAudioSamplerSetStereoPan(in pBalance as optional Number) return
    end unsafe
 end handler
 
+/**
+Sets the global tuning value for the AVAudioSampler in cents (-2400 to 2400)
+
+Type: command
+
+Syntax: AVAudioSamplerSetGlobalTuning <pCents>
+
+Example:
+AVAudioSamplerPitchbend 2400 -- shifts all pitches up 2400 cents (two octaves)
+AVAudioSamplerPitchbend 0 -- default value, no pitch shift
+AVAudioSamplerPitchbend -2400 -- shifts all pitches down -2400 cents (two octaves)
+
+Parameters:
+pCents: The amount in cents to shift all pitches
+
+Description:
+Sets the global tuning value for the AVAudioSampler, shifting all pitches down or up in the range of -2400 to 2400
+*/
 public handler AVAudioSamplerSetGlobalTuning(in pCents as optional Number) returns nothing
+   expect that (pCents >= -1.0 and pBalance <= 1.0 ) because "Global tuning values must be in the range of -2400 to 2400 (cents)"
    -- globalTuning -- @property(nonatomic) float globalTuning; -- The tuning unit is cents.
    -- The default value is 0.0 -- The range of valid values is -2400 to 2400 cents.
    if pCents is nothing then
@@ -632,15 +703,12 @@ Description:
 The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
 */
 public handler AVAudioSamplerPitchbend(in pBend as Uint16) returns nothing
-   expect that (pBend >= 0 and pBend <= 16384 ) because "MIDI controller selection must be in the range of 0 to 127"
+   expect that (pBend >= 0 and pBend <= 16384 ) because "MIDI controller selection must be in the range of 0 to 16384, 8192 is no bend"
+
    -- expect that (pMIDIChanNum >= 1 and pMIDIChanNum <= 16 ) because "MIDI channel values must be in the range of 1 to 16"
-   --log pBend
-   -- variable tChan as Integer
    --if pChan is nothing then
    --   put 0 into pChan
    -- end if
-   -- Value of the pitchbend. The valid range of values is 0 to 16383.
-   -- default value of 8192 (no pitch bend)
    unsafe
       objC_AVAudioUnitMIDIInstrumentPitchbend(sAVAudioUnitMIDIInstrument,pBend,0)
    end unsafe
