@@ -40,3 +40,10 @@ Version 0.6.5 ish:
 - Added General MIDI Controller Send
 - Bug Fixes & Minor or Cosmetic Updates to Demo Stack
 - Demo stack now has button that scans for EXS Instruments from GarageBand & Logic standard Sampler Instruments folders
+
+Version 0.7:
+
+Added inline documentation
+Changed some handler names, and parameters, updated demo stack for changes.
+Added some parameter checking
+Added MIDI Data Grid demo.
