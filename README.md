@@ -46,4 +46,4 @@ Version 0.7:
 - Added inline documentation
 - Changed some handler names, and parameters, updated demo stack for changes.
 - Added some parameter checking
-- Added MIDI Data Grid demo (which should work with AVAudioSampler,CoreMIDI,or AVMIDIPlayer on macOS (as well as built-in MIDI Player on Windows and Android platforms)
+- Added MIDI Data Grid demo (which should work with AVAudioSampler, CoreMIDI, or AVMIDIPlayer on macOS (as well as built-in MIDI Player on Windows and Android platforms)
