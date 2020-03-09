@@ -43,7 +43,7 @@ Version 0.6.5 ish:
 
 Version 0.7:
 
-Added inline documentation
-Changed some handler names, and parameters, updated demo stack for changes.
-Added some parameter checking
-Added MIDI Data Grid demo.
+- Added inline documentation
+- Changed some handler names, and parameters, updated demo stack for changes.
+- Added some parameter checking
+- Added MIDI Data Grid demo.
