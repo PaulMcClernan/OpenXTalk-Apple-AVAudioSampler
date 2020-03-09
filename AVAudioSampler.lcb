@@ -616,7 +616,7 @@ Description:
 Sets the global tuning value for the AVAudioSampler, shifting all pitches down or up in the range of -2400 to 2400
 */
 public handler AVAudioSamplerSetGlobalTuning(in pCents as optional Number) returns nothing
-   expect that (pCents >= -1.0 and pBalance <= 1.0 ) because "Global tuning values must be in the range of -2400 to 2400 (cents)"
+   expect that (pCents >= -2400 and pCents <= 2400 ) because "Global tuning values must be in the range of -2400 to 2400 (cents)"
    -- globalTuning -- @property(nonatomic) float globalTuning; -- The tuning unit is cents.
    -- The default value is 0.0 -- The range of valid values is -2400 to 2400 cents.
    if pCents is nothing then
