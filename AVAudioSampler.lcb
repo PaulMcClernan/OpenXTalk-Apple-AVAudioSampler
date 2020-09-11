@@ -605,9 +605,7 @@ Type: command
 Syntax: AVAudioSamplerSetGlobalTuning <pCents>
 
 Example:
-AVAudioSamplerPitchbend 2400 -- shifts all pitches up 2400 cents (two octaves)
-AVAudioSamplerPitchbend 0 -- default value, no pitch shift
-AVAudioSamplerPitchbend -2400 -- shifts all pitches down -2400 cents (two octaves)
+AVAudioSamplerSetGlobalTuning 2400 -- shifts all pitches up 2400 cents (two octaves)
 
 Parameters:
 pCents: The amount in cents to shift all pitches
@@ -632,10 +630,10 @@ Immediately sends a MIDI Note On message with the given pitch and velocity on th
 
 Type: command
 
-Syntax: AVAudioUnitSamplerNoteOn <MIDINoteNumber>,pMIDIVelocityNumber,<pMIDIChannelNumber>
+Syntax: AVAudioSamplerNoteOn <MIDINoteNumber>,pMIDIVelocityNumber,<pMIDIChannelNumber>
 
 Example:
-AVAudioUnitSamplerNoteOn 60,127,1 -- 60=Middle C, 127=Full velocity, 1=MIDI channel 1
+AVAudioSamplerNoteOn 60,127,1 -- 60=Middle C, 127=Full velocity, 1=MIDI channel 1
 
 Parameters:
 pMIDINoteNum: The number of the pitch to turn on, 0 to 127, 60 = Middle C
@@ -659,13 +657,13 @@ Name: AVAudioSamplerNoteOff
 
 Type: command
 
-Syntax: AVAudioUnitSamplerNoteOff <MIDINoteNumber>,<MIDIChannelNumber>
+Syntax: AVAudioSamplerNoteOff <MIDINoteNumber>,<MIDIChannelNumber>
 
 Summary:
 Immediately sends a MIDI Note Off message with the given pitch and velocity on the given channel.
 
 Example:
-AVAudioUnitSamplerNoteOff 60,1 -- Turns off Middle C on MIDI channel 1
+AVAudioSamplerNoteOff 60,1 -- Turns off Middle C on MIDI channel 1
 
 Parameters:
 pMIDINoteNum: The number of the pitch to turn off, 0 to 127, 60 = Middle C
