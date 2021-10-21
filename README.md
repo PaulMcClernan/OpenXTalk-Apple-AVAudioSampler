@@ -1,5 +1,5 @@
-# LCB_AppleAVAudioSampler
-A LiveCode Builder Module that binds to Apple's AudioUnit Sampler Synth!
+# OpenXTalk Apple AVAudioSampler
+An OXT Builder Module that binds to Apple's AudioUnit Sampler Synth!
 
 https://www.youtube.com/watch?v=va9WbnLrc00
 
