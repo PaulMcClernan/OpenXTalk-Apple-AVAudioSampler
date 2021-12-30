@@ -1,0 +1,373 @@
+Library: community.appleavaudiosampler.paulmcclernan
+
+Type: library
+
+Summary: This library contains bindings for Apple's AVAudio Sampler Instrument AudioUnit, useful for creating musical audio output using Sounds (aif, wav, mp3) or Soundbank files (SF2, DLS, and some EXS format).
+
+OS: mac, iOS (untested)
+
+Edition: Community
+
+Description:
+This library is a wrapper for Apple's AVAudio Sampler Instrument AudioUnit.
+
+>*Note:* This library is MIT licensed (permissive).
+> Please share and share a like.
+
+version: 0.6
+
+author: Paul McClernan
+
+
+Name: AVAudioSamplerLoadSoundFiles
+
+Type: command
+
+Syntax: AVAudioSamplerLoadSoundFiles pSoundFilesPathsListStr
+
+Summary: Attempts one or more individual sound files into the AVAudioSampler.
+
+Example:
+put "/System/Library/Sounds/Sosumi.aiff" into pSoundFilesPathsListStr
+AVAudioSamplerLoadSoundFiles pSoundFilesPathsListStr
+
+Parameters: 
+
+pSoundFilesPathsListStr: The file or paths (line delimited) to one or more sound files.
+
+Description:
+Attempts one or more individual sound files from given line delimited list of file paths into the AVAudioSampler.
+The sounds maybe in any of a number of natively supported formats such as (.caf, .mp3, .aif).
+
+
+
+Name: AVAudioSamplerPitchbend
+
+Type: command
+
+Syntax: AVAudioSamplerPitchbend <pPitchBendCoarseNFine>,<pMIDIChanNum>
+
+Summary: The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
+
+Example:
+AVAudioSamplerPitchbend 0,1 -- Pitchbend Maximum Down, channel 1
+AVAudioSamplerPitchbend 16384,1 -- Pitchbend Maximum Up, channel 1
+AVAudioSamplerPitchbend 8192,1 -- Centered / No Bend, channel 1
+
+Parameters: 
+
+pPitchBendCoarseNFine: The number of the pitch bend 'position'
+
+pMIDIChanNum: MIDI Channel to send the bend value on, 1 to 16
+
+Description: The send pitchbend with fine range from 0 to 16384, 8192 is centered (no bend)
+
+
+
+
+Name: AVAudioSamplerGetMasterGain
+
+Type: function
+
+Syntax: AVAudioSamplerGetMasterGain()
+
+Summary: Gets the value of the current gain amount (dB) that the AVAudioSampler sound output is set for.
+
+Example: AVAudioSamplerGetMasterGain()
+
+Returns: number in the range of -90.0 to 12.0, the amount of gain (dB) that sound output is currently set for.
+
+Description: Gets the value of the current gain amount (dB) that the AVAudioSampler sound output is set for.
+
+
+
+
+Name: AVAudioSamplerNoteOff
+
+Type: command
+
+Syntax: AVAudioSamplerNoteOff <MIDINoteNumber>,<MIDIChannelNumber>
+
+Summary: Immediately sends a MIDI Note Off message with the given pitch and velocity on the given channel.
+
+Example: AVAudioSamplerNoteOff 60,1 -- Turns off Middle C on MIDI channel 1
+
+Parameters: 
+
+pMIDINoteNum: The number of the pitch to turn off, 0 to 127, 60 = Middle C
+
+pMIDIChanNum: The MIDI Channel to send the message to, 0 to 15, 0 = Channel 1
+
+Description: Immediately sends a MIDI Note Off message with the given pitch on the given channel.
+
+
+
+
+Name: AVAudioSamplerController
+
+Type: command
+
+Syntax: AVAudioSamplerController <pController>, <pControllerVal>, <pMIDIChanNum>
+
+Summary: The send a controller with a single data byte value to on a given channel
+
+Example: AVAudioSamplerController 7,127,1 -- 7 = Volume Controller, Data Byte 1, channel 1
+
+Parameters: 
+
+pController: The number of the MIDI Controller to set values for
+
+pControllerVal: The value byte one
+
+pMIDIChanNum: MIDI Channel to send the controller value on, 1 to 16
+
+Description: The send a controller with a single data byte value to on a given channel
+
+
+
+
+Name: AVAudioSamplerEngineStop
+
+Type: command
+
+Syntax: AVAudioSamplerEngineStop()
+
+Summary: Stops the AVAudioSampler Engine running.
+
+Example: AVAudioSamplerEngineStop
+
+Description: Stops the running AVAudioSampler Engine. The Engine should be stopped or paused when not in use to avoid device CPU and battery useage.
+
+
+
+
+Name: AVAudioSamplerSetMasterGain
+
+Type: command
+
+Syntax: AVAudioSamplerSetMasterGain <pGain>
+
+Summary: Sets the master gain value for the AVAudioSampler in the dB range of -90.0 to 12.0
+
+Example:
+AVAudioSamplerSetMasterGain 12.0 -- Amplified!
+AVAudioSamplerSetMasterGain 0 -- Normal Gain
+AVAudioSamplerSetMasterGain -90.0 -- Can't even hear this!
+
+Parameters: 
+
+pGain: The amount of gain on sound output in the dB range of -90.0 to 12.0
+
+Description: Sets the master gain value for the AVAudioSampler sound output in the dB range of -90.0 (silent) to 12.0 (amplified)
+
+
+
+
+Name: AVAudioSamplerLoadEXSPresetOrSound
+
+Type: command
+
+Syntax: AVAudioSamplerLoadEXSPresetOrSound pEXSPresetOrSoundPath
+
+Summary: Attempts to Load an EXS or AUPreset file into the AVAudioSampler.
+
+Example:
+put "/Library/Application Support/GarageBand/Instrument Library/Sampler/Sampler Instruments/iOS Instruments/Flute iOS KB.exs" into pEXSPresetOrSoundPath
+AVAudioSamplerLoadEXSPresetOrSound pEXSPresetOrSoundPath
+
+Parameters: 
+
+pEXSPresetOrSoundPath: The file path to a EXS or AUPreset file
+
+Description: Attempts to Load an EXS Patch (Logic or GarageBand Instrument) or an AUPreset file into the AVAudioSampler.
+
+
+
+
+Name: AVAudioSamplerNoteOn
+
+Type: command
+
+Syntax: AVAudioSamplerNoteOn <MIDINoteNumber>,pMIDIVelocityNumber,<pMIDIChannelNumber>
+
+Summary: Immediately sends a MIDI Note On message with the given pitch and velocity on the given channel.
+
+Example: AVAudioSamplerNoteOn 60,127,1 -- 60=Middle C, 127=Full velocity, 1=MIDI channel 1
+
+Parameters: 
+
+pMIDINoteNum: The number of the pitch to turn on, 0 to 127, 60 = Middle C
+
+pMIDIVeloNum: The velocity to play the given pitch at, 0 to 127
+
+pMIDIChanNum: The MIDI Channel to play the note on, 1 to 16
+
+Description: Immediately sends a MIDI Note On message with the given pitch and velocity on the given channel.
+
+
+
+
+Name: AVAudioSamplerSetGlobalTuning
+
+Type: command
+
+Syntax: AVAudioSamplerSetGlobalTuning <pCents>
+
+Summary: Sets the global tuning value for the AVAudioSampler in cents (-2400 to 2400)
+
+Example: AVAudioSamplerSetGlobalTuning 2400 -- shifts all pitches up 2400 cents (two octaves)
+
+Parameters: 
+
+pCents: The amount in cents to shift all pitches
+
+Description: Sets the global tuning value for the AVAudioSampler, shifting all pitches down or up in the range of -2400 to 2400
+
+
+
+
+Name: AVAudioSamplerEngineRestart
+
+Type: command
+
+Syntax: AVAudioSamplerEngineRestart()
+
+Summary: Restarts the AVAudioSampler Engine.
+
+Example: AVAudioSamplerEngineRestart
+
+Description: Restarts the AVAudioSampler Engine after it has been stopped or paused.
+
+
+
+
+Name: AVAudioSamplerInfo
+
+Type: function
+
+Syntax: AVAudioSamplerInfo()
+
+Summary: Gets info About the running AVAudioSampler.
+
+Example: get AVAudioSamplerInfo()
+
+Returns: Comma seperated string of items. Name, Manufacturer, Version, Number of Inputs, Number of Outputs, AudioComponentDescription
+
+Description: Gets info About the running AVAudioSampler, mostly here for developement usage for now.
+
+
+
+
+Name: AVAudioSamplerEnginePause
+
+Type: command
+
+Syntax: AVAudioSamplerEnginePause()
+
+Summary: Temporarily pauses the running AVAudioSampler Engine.
+
+Example: AVAudioSamplerEnginePause
+
+Description: Temporarily pauses the running AVAudioSampler Engine. The Engine should be stopped or paused when not in use to avoid device CPU and battery useage.
+
+
+
+
+Name: AVAudioSamplerInit
+
+Type: function
+
+Syntax: AVAudioSamplerInit()
+
+Summary: Setup Audio Engine with attached Sampler AudioUnit.
+
+Example: AVAudioEngineSamplerInit()
+
+Returns: True on success, False or error string on failure, or the string "AVAudioSampler is already running."
+
+Description: Attempts to initializes instances of Audio Engine, Output Mixer, and Sampler AudioUnit and attach them together.
+
+
+
+
+Name: AVAudioSamplerSetStereoPan
+
+Type: command
+
+Syntax: AVAudioSamplerSetStereoPan <pBalance>
+
+Summary: Sets the Stereo pan values in the range of -1.0 (left) to 1.0 (right)
+
+Example:
+AVAudioSamplerSetStereoPan -1.0 -- all sounds output in left speaker
+AVAudioSamplerSetStereoPan 0 -- all sounds centered
+AVAudioSamplerSetStereoPan 1.0 -- all sounds output in right speaker
+
+Parameters: 
+
+pBalance: The amount to shift sound output to the left or the right
+
+Description: Sets the amount to shift sound output to the left or right in the range of -1.0 (left) to 1.0 (right)
+
+
+
+
+Name: AVAudioSamplerLoadSF2DLS
+
+Type: command
+
+Syntax: AVAudioSamplerLoadSF2DLS pSoundBankPath, pProgramNum, pBankMSB, pBankLSB
+
+Summary: Loads a soundbank file or type SF2 or DLS into AVAudioSampler and optional sets it to a given program or patch and bank.
+
+Example:
+put "/System/Library/Components/CoreAudio.component/Contents/Resources/gs_instruments.dls" into pSoundFontPath -- Apple's default instrument sounds
+AVAudioSamplerLoadSF2DLS pSoundFontPath,19,,  -- General MIDI Rock Organ
+
+Parameters: 
+
+pSoundFontPath: The path to a Soundbank file
+
+pProgramNum: A Program number to set 0 to 127
+
+pBankMSB: Bank number Most Significant Byte
+
+pBankLSB: Bank number Least Significant Byte
+
+Description: Loads a soundbank file or type SF2 or DLS into AVAudioSampler and optional sets it to a given program or patch and bank.
+
+
+
+
+Name: AVAudioSamplerEngineReset
+
+Type: command
+
+Syntax: AVAudioSamplerEngineReset()
+
+Summary: Resets the AVAudioSampler Engine to default state.
+
+Example: AVAudioSamplerEngineReset
+
+Description: This resets AVAudioSampler Engine to it's default state. Use it, for example, to silence effects such as delay echoes.
+
+
+
+
+Name: AVAudioSamplerEngineIsRunning
+
+Type: function
+
+Syntax: AVAudioSamplerEngineIsRunning()
+
+Summary: Check if AVAudioSampler's AudioEngine is already running.
+
+Example: AVAudioSamplerEngineIsRunning()
+
+Returns: True if the AVAudioSampler's AudioEngine is already running, false if it is not.
+
+Description: Check if AVAudioSampler's AudioEngine instance is already running.
+
+
+
+
