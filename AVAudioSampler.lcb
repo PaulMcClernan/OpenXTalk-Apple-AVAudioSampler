@@ -9,10 +9,10 @@ Edition: Community
 Description:
 This library is a wrapper for Apple's AVAudio Sampler Instrument AudioUnit.
 
->*Note:* This library is MIT licensed (permissive).
+>*Note:* This library is GPL3 licensed.
 > Please share and share a like.
 */
-library community.appleavaudiosampler.paulmcclernan
+library org.openxtalk.appleavaudiosampler
 
 use com.livecode.engine
 use com.livecode.foreign
