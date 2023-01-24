@@ -1,5 +1,5 @@
 <package version="0.0">
-  <name>community.appleavaudiosampler.paulmcclernan</name>
+  <name>org.openxtalk.appleavaudiosampler</name>
   <title>Apple AVAudioSampler library</title>
   <author>Paul McClernan</author>
   <version>0.6</version>

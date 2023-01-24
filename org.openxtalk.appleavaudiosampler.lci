@@ -1,0 +1,34 @@
+import module org.openxtalk.appleavaudiosampler
+  use com.livecode.objc
+  use com.livecode.foreign
+  use com.livecode.arithmetic
+  use com.livecode.binary
+  use com.livecode.list
+  use com.livecode.logic
+  use com.livecode.string
+  use com.livecode.type
+  use com.livecode.engine
+  use com.livecode.char
+  use com.livecode.typeconvert
+  use com.livecode.array
+  use com.livecode.assert
+  foreign type AudioComponentDescription
+  handler AVAudioSamplerInit() returns optional any
+  handler AVAudioSamplerEngineIsRunning() returns optional any
+  handler AVAudioSamplerEngineRestart() returns nothing
+  handler AVAudioSamplerEngineStop() returns nothing
+  handler AVAudioSamplerEnginePause() returns nothing
+  handler AVAudioSamplerEngineReset() returns nothing
+  handler AVAudioSamplerLoadSF2DLS(in pSoundFontPath as optional String, in pProgramNum as optional Number, in pBankMSB as optional Number, in pBankLSB as optional Number) returns optional any
+  handler AVAudioSamplerLoadEXSPresetOrSound(in pEXSPresetOrSoundPath as optional String) returns optional any
+  handler AVAudioSamplerInfo() returns optional any
+  handler AVAudioSamplerLoadSoundFiles(in pSoundFilesPathsListStr as String) returns optional any
+  handler AVAudioSamplerSetMasterGain(in pGain as optional NaturalFloat) returns nothing
+  handler AVAudioSamplerGetMasterGain() returns Number
+  handler AVAudioSamplerSetStereoPan(in pBalance as optional Number) returns nothing
+  handler AVAudioSamplerSetGlobalTuning(in pBalance as optional Number) returns nothing
+  handler AVAudioSamplerNoteOn(in pNoteNum as Number, in pNoteVelo as Number, in pNoteChan as Number) returns nothing
+  handler AVAudioSamplerNoteOff(in pNoteNum as Number, in pNoteChan as Number) returns nothing
+  handler AVAudioSamplerPitchbend(in pBend as Uint16) returns nothing
+  handler AVAudioSamplerController(in pController as UInt8, in pValue as UInt8, in pChanl as UInt8) returns nothing
+end module
